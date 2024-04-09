@@ -2,6 +2,9 @@
 
 An application to configure and schedule data interchange between heterogeneous systems. 
 
+# Requirements
+This aplications needs Docker to be installed: https://www.docker.com/products/docker-desktop/
+
 ## Deploy
 ### (FIRST DEPLOY) Build and deploy
 ```
@@ -24,17 +27,17 @@ python deploy.py -d
 python undeploy.py
 ```
 
-### Remove images undeploy (Have to rebuild after)
+### Undeploy removing images (Have to rebuild after)
 ```
 python undeploy.py -i
 ```
 
-### Remove volumes undeploy (Flushes db data)
+### Undeploy removing volumes (Flushes db data)
 ```
 python undeploy.py -v
 ```
 
-### Remove both undeploy
+### Undeploy removing everything
 ```
 python undeploy.py -f
 ```
