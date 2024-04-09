@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_results',
     'django_celery_beat',
-    f'{MAIN_APP_NAME}.apps.HeterogeneousSystemIntegratorConfig',
+    MAIN_APP_NAME,
 ]
 
 MIDDLEWARE = [

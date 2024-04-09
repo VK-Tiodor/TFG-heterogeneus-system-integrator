@@ -17,4 +17,9 @@ if options.build:
 command = 'docker compose up'
 if options.detach:
     command = f'{command} -d'
-subprocess.run(command.split(), cwd=project_dir)
+
+interrupt_counter = 0
+try:
+    result = subprocess.run(command.split(), cwd=project_dir)
+except KeyboardInterrupt:
+    pass

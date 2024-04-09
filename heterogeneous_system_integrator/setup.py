@@ -2,12 +2,11 @@ from distutils.core import setup
 from setuptools import find_packages
 
 setup(
-   name='Heterogeneous system integrator',
+   name='heterogeneous_system_integrator',
    author='Tiodor V.K.',
    author_email='TiodorVK@gmail.com',
    version='1.0',
-   packages=find_packages(include=['*']),
-   long_description=open('README.md').read(),
+   packages=['heterogeneous_system_integrator'],
    install_requires=[
        'celery==5.3.6',
        'django-celery-beat==2.6.0',

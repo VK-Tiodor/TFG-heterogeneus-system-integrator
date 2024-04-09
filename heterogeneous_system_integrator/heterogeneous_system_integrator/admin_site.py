@@ -1,7 +1,5 @@
 from django.contrib.admin import AdminSite
 from django.utils.translation import gettext as _
-from django_celery_beat.models import CrontabSchedule
-from django_celery_results.models import TaskResult
 
 from heterogeneous_system_integrator.domain.connection import Connection
 from heterogeneous_system_integrator.domain.conversion import Conversion
@@ -28,12 +26,10 @@ admin_site = MyAdminSite()
 models_to_register=[
     Connection,
     Conversion,
-    CrontabSchedule,
     Filter, 
     Mapping,
     Subtask, 
     Task,
-    TaskResult,
     TransferStep,
     TransformStep,
 ]

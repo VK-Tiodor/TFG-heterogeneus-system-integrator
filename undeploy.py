@@ -10,7 +10,7 @@ def remove_images(project_dir):
 
 def remove_volumes(project_dir):
     volume_ids= subprocess.check_output(['docker', 'volume', 'ls', '-q'], cwd=project_dir)
-    subprocess.run(['docker', 'rmi', *volume_ids.split()], cwd=project_dir)
+    subprocess.run(['docker', 'volume', 'rm', *volume_ids.split()], cwd=project_dir)
 
 
 parser = argparse.ArgumentParser(
