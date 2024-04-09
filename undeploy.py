@@ -25,10 +25,10 @@ options = parser.parse_args()
 
 project_dir = project_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'heterogeneous_system_integrator')
 subprocess.run(['docker', 'compose', 'down'], cwd=project_dir)
-if parser.full:
+if options.full:
     remove_images(project_dir)
     remove_volumes(project_dir)
-elif parser.images:
+elif options.images:
     remove_images(project_dir)
-elif parser.volumes:
+elif options.volumes:
     remove_volumes(project_dir)
