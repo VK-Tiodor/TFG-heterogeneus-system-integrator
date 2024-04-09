@@ -1,0 +1,22 @@
+from distutils.core import setup
+from setuptools import find_packages
+
+setup(
+   name='Heterogeneous system integrator',
+   author='Tiodor V.K.',
+   author_email='TiodorVK@gmail.com',
+   version='1.0',
+   packages=find_packages(include=['*']),
+   long_description=open('README.md').read(),
+   install_requires=[
+       'celery==5.3.6',
+       'django-celery-beat==2.6.0',
+       'django-celery-results==2.5.1',
+       'django-filter==24.2',
+       'django==4.2',
+       'djangorestframework==3.15.1',
+       'flower==2.0.1',
+       'markdown==3.6',
+       'psycopg2==2.9.9',
+   ],
+)
