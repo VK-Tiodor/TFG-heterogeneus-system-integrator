@@ -9,17 +9,17 @@ def remove_images(project_dir):
 
 
 def remove_volumes(project_dir):
-    image_ids= subprocess.check_output(['docker', 'image', 'ls', '-aq'], cwd=project_dir)
-    subprocess.run(['docker', 'rmi', *image_ids.split()], cwd=project_dir)
+    volume_ids= subprocess.check_output(['docker', 'volume', 'ls', '-q'], cwd=project_dir)
+    subprocess.run(['docker', 'rmi', *volume_ids.split()], cwd=project_dir)
 
 
 parser = argparse.ArgumentParser(
     prog='Undeployer',
     description='Undeploys the heterogeneous system integrator. Default behaviour: Stops and removes the containers.'
 )
-parser.add_argument('-f', '--full', help='Removes everything')
-parser.add_argument('-i', '--images', help='Removes also the images of the containers, for code updates')
-parser.add_argument('-v', '--volumes', help='Removes also the volumes of the containers, for data flushing')
+parser.add_argument('-f', '--full', action='store_true', help='Removes everything')
+parser.add_argument('-i', '--images', action='store_true', help='Removes also the images of the containers, for code updates')
+parser.add_argument('-v', '--volumes', action='store_true', help='Removes also the volumes of the containers, for data flushing')
 options = parser.parse_args()
 
 
