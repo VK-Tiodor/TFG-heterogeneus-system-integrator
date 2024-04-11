@@ -1,4 +1,5 @@
-from django.contrib.admin import AdminSite
+from django.db.models.fields import related, reverse_related
+from django.contrib.admin import AdminSite, ModelAdmin
 from django.utils.translation import gettext as _
 
 from heterogeneous_system_integrator.domain.connection import Connection
@@ -33,4 +34,11 @@ models_to_register=[
     TransferStep,
     TransformStep,
 ]
-admin_site.register(models_to_register)
+for model in models_to_register:
+    class MyAdminModel(ModelAdmin):
+        list_display = [
+            field.name for field in model._meta.get_fields() 
+            if not isinstance(field, (related.RelatedField, reverse_related.ForeignObjectRel)) 
+        ]
+    
+    admin_site.register(model, MyAdminModel)

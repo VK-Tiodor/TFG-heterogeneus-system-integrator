@@ -12,6 +12,6 @@ CONNECTION_TYPES = {
 class Connection(Base):
     type = models.CharField(choices=list(CONNECTION_TYPES.items()))
     hostname = models.CharField(help_text='www.host_site.com or 192.168.0.1')
-    port = models.IntegerField(null=True, help_text='5432')
-    username = models.CharField(blank=True)
-    password = models.CharField(blank=True)
+    port = models.IntegerField(null=True, blank=True, help_text='5432')
+    username = models.CharField(null=True, blank=True)
+    password = models.CharField(null=True, blank=True)
