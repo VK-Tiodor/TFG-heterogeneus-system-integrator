@@ -4,7 +4,7 @@ from heterogeneous_system_integrator.domain.base import Base
 
 
 class ApiPath(Base):
-    endpoint = models.Charlfield()
+    endpoint = models.CharField()
     path_to_results_list = models.CharField(null=True, blank=True)
 
 
