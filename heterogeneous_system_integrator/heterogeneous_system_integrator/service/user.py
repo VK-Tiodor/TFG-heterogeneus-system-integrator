@@ -11,7 +11,7 @@ class UserService(BaseService):
     def force_admin_login(cls, request):
         user = cls.REPOSITORY_CLASS.get_or_create(
             username='admin',
-            defaults={
+            default_properties={
                 'is_staff': True, 
                 'is_superuser': True,
                 'password': 'default_password',
