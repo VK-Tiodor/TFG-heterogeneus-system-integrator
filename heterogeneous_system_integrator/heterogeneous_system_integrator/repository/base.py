@@ -1,5 +1,6 @@
 from django.db.models import QuerySet, Model
 
+
 class BaseRepository:
     MODEL_CLASS: Model = None
     
@@ -15,13 +16,6 @@ class BaseRepository:
         if distinct:
             qs = qs.distinct(*distinct)
         return qs
-
-    @classmethod
-    def select(cls, columns: list = None, query: QuerySet = None, filters:dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> list:
-        query = query or cls.create_query(filters, exclude, order_by, distinct)
-        if columns:
-            query = query.values_list(*columns, flat=(len(columns) == 1))
-        return list(query)
 
     @classmethod
     def union(cls, *querysets: QuerySet) -> QuerySet:
@@ -45,14 +39,14 @@ class BaseRepository:
     def get(cls, query: QuerySet = None, filters:dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> Model:
         query = query or cls.create_query(filters, exclude, order_by, distinct)
         return query.get(**filters)
-    
-    @classmethod
-    def create(cls, **properties) -> Model:
-        return cls.MODEL_CLASS.objects.create(**properties)
 
     @classmethod
-    def get_or_create(cls, default_properties: dict, **filters) -> Model:
+    def get_or_insert(cls, default_properties: dict, **filters) -> Model:
         return cls.MODEL_CLASS.objects.get_or_create(defaults=default_properties, **filters)[0]
+    
+    @classmethod
+    def update_or_insert(cls, default_properties: dict, **filters) -> Model:
+        return cls.MODEL_CLASS.objects.update_or_create(defaults=default_properties, **filters)[0]
     
     @classmethod
     def exists(cls, query: QuerySet = None, filters: dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> bool:
@@ -65,11 +59,41 @@ class BaseRepository:
         return query.contains(model)
     
     @classmethod
-    def update(cls, new_values: dict, query: QuerySet = None, filters: dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> int:
+    def select(cls, columns: list = None, query: QuerySet = None, filters:dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> list:
         query = query or cls.create_query(filters, exclude, order_by, distinct)
-        return query.update(**new_values)
+        if columns:
+            query = query.values_list(*columns, flat=(len(columns) == 1))
+        return list(query)
+
+    @classmethod
+    def insert(cls, model: Model = None, models: list[Model] = None, **properties) -> None:
+        if model:
+            model.save()
+        elif models:
+            cls.MODEL_CLASS.objects.bulk_create(models)
+        elif properties:
+            cls.MODEL_CLASS.objects.create(**properties)
+
+    @classmethod
+    def update(cls, model: Model = None, models_and_columns: tuple[list[Model], list[str]] = None, query: QuerySet = None, filters: dict = None, exclude: dict = None, order_by: list = None, distinct: list = None, new_values: dict = None) -> int:
+        count = 0
+        if model:
+            count += 1
+            model.save()
+        elif models_and_columns:
+            count = cls.MODEL_CLASS.objects.bulk_update(models_and_columns[0], models_and_columns[1])
+        elif new_values:
+            query = query or cls.create_query(filters, exclude, order_by, distinct)
+            count = query.update(**new_values)
+        return count
     
     @classmethod
-    def delete(cls, query: QuerySet = None, filters: dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> int:
-        query = query or cls.create_query(filters, exclude, order_by, distinct)
-        return query.delete()[0]
+    def delete(cls, model: Model = None, query: QuerySet = None, filters: dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> int:
+        count = 0
+        if model:
+            count += 1
+            model.delete()
+        else:
+            query = query or cls.create_query(filters, exclude, order_by, distinct)
+            count = query.delete()[0]
+        return count

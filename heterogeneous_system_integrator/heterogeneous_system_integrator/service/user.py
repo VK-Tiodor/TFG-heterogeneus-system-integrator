@@ -9,7 +9,7 @@ class UserService(BaseService):
 
     @classmethod
     def force_admin_login(cls, request):
-        user = cls.REPOSITORY_CLASS.get_or_create(
+        user = cls.REPOSITORY_CLASS.get_or_insert(
             username='admin',
             default_properties={
                 'is_staff': True, 

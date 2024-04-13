@@ -18,9 +18,11 @@ from django.urls import path
 from django.shortcuts import redirect
 
 from heterogeneous_system_integrator.service.user import UserService
-from heterogeneous_system_integrator.admin_site import admin_site
+from heterogeneous_system_integrator.user_interface.admin_site import admin_site
+from heterogeneous_system_integrator.user_interface.api.urls import router
 
 ADMIN_PATH = 'admin/'
+API_PATH = 'api/'
 
 def redirect_to_admin_site_urls(request):
     UserService.force_admin_login(request)
@@ -29,4 +31,5 @@ def redirect_to_admin_site_urls(request):
 urlpatterns = [
     path("", redirect_to_admin_site_urls),
     path(ADMIN_PATH, admin_site.urls),
+    path(API_PATH, router.urls)
 ]
