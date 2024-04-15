@@ -1,23 +1,18 @@
 from rest_framework.routers import DefaultRouter
 
-from heterogeneous_system_integrator.user_interface.api.viewset.connection import ConnectionViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.conversion import ConversionViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.filter import FilterViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.mapping import MappingViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.path import ApiPathViewset, DbPathViewset, FtpPathViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.step import TransferStepViewset, TransformStepViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.subtask import SubtaskViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.task import TaskViewset
+from heterogeneous_system_integrator.user_interface.api.viewset import *
+from heterogeneous_system_integrator.domain import *
+
 
 router = DefaultRouter(trailing_slash=False)
-router.register(r'^connections/?', ConnectionViewset)
-router.register(r'^conversions/?', ConversionViewset)
-router.register(r'^filters/?', FilterViewset)
-router.register(r'^mappings/?', MappingViewset)
-router.register(r'^api-paths/?', ApiPathViewset)
-router.register(r'^db-paths/?', DbPathViewset)
-router.register(r'^ftp-paths/?', FtpPathViewset)
-router.register(r'^transfer-steps/?', TransferStepViewset)
-router.register(r'^transform-steps/?', TransformStepViewset)
-router.register(r'^subtasks/?', SubtaskViewset)
-router.register(r'^tasks/?', TaskViewset)
+router.register(r'connections/?', ConnectionViewset, Connection._meta.model_name.lower())
+router.register(r'conversions/?', ConversionViewset, Conversion._meta.model_name.lower())
+router.register(r'filters/?', FilterViewset, Filter._meta.model_name.lower())
+router.register(r'mappings/?', MappingViewset, Mapping._meta.model_name.lower())
+router.register(r'api-paths/?', ApiPathViewset, ApiPath._meta.model_name.lower())
+router.register(r'db-paths/?', DbPathViewset, DbPath._meta.model_name.lower())
+router.register(r'ftp-paths/?', FtpPathViewset, FtpPath._meta.model_name.lower())
+router.register(r'transfer-steps/?', TransferStepViewset, TransferStep._meta.model_name.lower())
+router.register(r'transform-steps/?', TransformStepViewset, TransformStep._meta.model_name.lower())
+router.register(r'subtasks/?', SubtaskViewset, Subtask._meta.model_name.lower())
+router.register(r'tasks/?', TaskViewset, Task._meta.model_name.lower())

@@ -42,7 +42,7 @@ for model in models_to_register:
     class MyAdminModel(ModelAdmin):
         list_display = [
             field.name for field in model._meta.get_fields() 
-            if not isinstance(field, (related.RelatedField, reverse_related.ForeignObjectRel)) 
+            if not isinstance(field, (related.RelatedField, reverse_related.ForeignObjectRel)) and field.name != 'slug'
         ]
     
     admin_site.register(model, MyAdminModel)

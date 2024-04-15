@@ -1,8 +1,8 @@
-from heterogeneous_system_integrator.domain import base
-from heterogeneous_system_integrator.domain import connection
-from heterogeneous_system_integrator.domain import conversion
-from heterogeneous_system_integrator.domain import filter
-from heterogeneous_system_integrator.domain import mapping
-from heterogeneous_system_integrator.domain import step
-from heterogeneous_system_integrator.domain import subtask
-from heterogeneous_system_integrator.domain import task
+from heterogeneous_system_integrator.domain.connection import Connection
+from heterogeneous_system_integrator.domain.conversion import Conversion
+from heterogeneous_system_integrator.domain.filter import Filter
+from heterogeneous_system_integrator.domain.mapping import Mapping
+from heterogeneous_system_integrator.domain.path import ApiPath, DbPath, FtpPath
+from heterogeneous_system_integrator.domain.step import TransferStep, TransformStep
+from heterogeneous_system_integrator.domain.subtask import Subtask
+from heterogeneous_system_integrator.domain.task import Task

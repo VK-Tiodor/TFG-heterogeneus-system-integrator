@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
+from django.urls import path, include
 from django.shortcuts import redirect
 
 from heterogeneous_system_integrator.service.user import UserService
@@ -31,5 +31,5 @@ def redirect_to_admin_site_urls(request):
 urlpatterns = [
     path("", redirect_to_admin_site_urls),
     path(ADMIN_PATH, admin_site.urls),
-    path(API_PATH, router.urls)
+    path(API_PATH, include(router.urls))
 ]
