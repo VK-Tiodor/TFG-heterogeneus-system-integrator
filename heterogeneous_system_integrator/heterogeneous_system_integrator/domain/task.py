@@ -3,13 +3,9 @@ from datetime import datetime, timedelta
 from django.db import models, IntegrityError
 from django_celery_beat.models import ClockedSchedule, CrontabSchedule, PeriodicTask
 
+from heterogeneous_system_integrator.settings import CELERY_PLANNED_TASK_NAME, CELERY_PERIODIC_TASK_NAME
 from heterogeneous_system_integrator.domain.base import Base
 from heterogeneous_system_integrator.domain.subtask import Subtask
-
-
-CELERY_ASYNC_TASK_NAME='run_async_task'
-CELERY_PLANNED_TASK_NAME='run_planned_task'
-CELERY_PERIODIC_TASK_NAME='run_periodic_task'
 
 
 class AsyncTask(Base):
@@ -24,7 +20,7 @@ class PlannedTask(Base):
         if (datetime(self.execute_at) - datetime.now()) <= timedelta(0):
             raise IntegrityError('"Execute at" must be fulfilled with a date in the future')
         cs = ClockedSchedule(clocked_time=self.execute_at).save()
-        PeriodicTask(name=self.name, task=CELERY_PLANNED_TASK_NAME, clocked=cs, kwargs={"pk": self.pk}).save()
+        PeriodicTask(name=self.name, task=CELERY_PLANNED_TASK_NAME, clocked=cs, kwargs={"task": self}).save()
         return super().save(*args, **kwargs)
 
 
@@ -42,5 +38,5 @@ class PeriodicTask(Base):
             raise IntegrityError('"Stop at" must be fulfilled with a date in the future')    
         minute, hour, day_of_month, month_of_year, day_of_week = self.period.split()
         cs = CrontabSchedule(minute=minute, hour=hour, day_of_month=day_of_month, month_of_year=month_of_year, day_of_week=day_of_week).save()
-        PeriodicTask(name=self.name, task=CELERY_PERIODIC_TASK_NAME, crontab=cs, kwargs={"pk": self.pk}, expires=self.stop_at).save()
+        PeriodicTask(name=self.name, task=CELERY_PERIODIC_TASK_NAME, crontab=cs, kwargs={"task": self}, expires=self.stop_at).save()
         return super().save(*args, **kwargs)

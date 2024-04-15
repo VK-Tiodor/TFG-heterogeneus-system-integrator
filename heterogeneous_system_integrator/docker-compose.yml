@@ -52,9 +52,9 @@ services:
       - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST:-default_vhost} 
     networks:
       - default
-    expose:
-      - "5672"
-      - "8080"
+    ports:
+      - "5672:5672"
+      - "8080:8080"
 
   db:
     image: postgres:14.11-bullseye
