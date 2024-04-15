@@ -5,4 +5,4 @@ from heterogeneous_system_integrator.domain.mapping import Mapping
 from heterogeneous_system_integrator.domain.path import ApiPath, DbPath, FtpPath
 from heterogeneous_system_integrator.domain.step import TransferStep, TransformStep
 from heterogeneous_system_integrator.domain.subtask import Subtask
-from heterogeneous_system_integrator.domain.task import Task
+from heterogeneous_system_integrator.domain.task import AsyncTask, PlannedTask, PeriodicTask

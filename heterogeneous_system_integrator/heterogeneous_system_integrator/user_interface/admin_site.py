@@ -9,7 +9,7 @@ from heterogeneous_system_integrator.domain.mapping import Mapping
 from heterogeneous_system_integrator.domain.path import ApiPath, DbPath, FtpPath
 from heterogeneous_system_integrator.domain.step import TransferStep, TransformStep
 from heterogeneous_system_integrator.domain.subtask import Subtask
-from heterogeneous_system_integrator.domain.task import Task
+from heterogeneous_system_integrator.domain.task import AsyncTask, PlannedTask, PeriodicTask
 from heterogeneous_system_integrator.settings import MAIN_APP_VERBOSE
 
 
@@ -27,14 +27,16 @@ class MyAdminSite(AdminSite):
 admin_site = MyAdminSite()
 models_to_register=[
     ApiPath,
+    AsyncTask,
     Connection,
     Conversion,
     DbPath,
     Filter, 
     FtpPath,
     Mapping,
+    PeriodicTask,
+    PlannedTask,
     Subtask, 
-    Task,
     TransferStep,
     TransformStep,
 ]

@@ -5,4 +5,4 @@ from heterogeneous_system_integrator.user_interface.api.viewset.mapping import M
 from heterogeneous_system_integrator.user_interface.api.viewset.path import ApiPathViewset, DbPathViewset, FtpPathViewset
 from heterogeneous_system_integrator.user_interface.api.viewset.step import TransferStepViewset, TransformStepViewset
 from heterogeneous_system_integrator.user_interface.api.viewset.subtask import SubtaskViewset
-from heterogeneous_system_integrator.user_interface.api.viewset.task import TaskViewset
+from heterogeneous_system_integrator.user_interface.api.viewset.task import AsyncTaskViewset, PlannedTaskViewset, PeriodicTaskViewset
