@@ -13,7 +13,7 @@ class AsyncTask(Base):
     
 
 class PlannedTask(Base):
-    subtasks = models.ManyToManyField(Subtask, related_name='planned_tasks', help_text='Subtasks that are going to be executed')
+    async_task = models.ForeignKey(AsyncTask, related_name='planned_tasks', on_delete=models.CASCADE)
     execute_at = models.DateTimeField(help_text='Date and time when the task is going to be executed')
 
     def save(self, *args, **kwargs):
@@ -25,7 +25,7 @@ class PlannedTask(Base):
 
 
 class PeriodicTask(Base):
-    subtasks = models.ManyToManyField(Subtask, related_name='periodic_tasks', help_text='Subtasks that are going to be executed')
+    async_task = models.ForeignKey(AsyncTask, related_name='periodic_tasks', on_delete=models.CASCADE)
     period = models.CharField(
         help_text="Please use the following format: Minute[0-59] Hour[0-23] Day[1-31] Month[1-12] Week[0-6](0=Sunday).\
             Syntax guide: Use a space to separate each field, use a comma to separate multiple values, use a hyphen to designate a range of values and use an asterisk as a wildcard to include all possible values.\

@@ -61,7 +61,7 @@ ROOT_URLCONF = f'{MAIN_APP_NAME}.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, MAIN_APP_NAME, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -142,6 +142,7 @@ result_backend = 'django-db'
 cache_backend = 'django-cache'
 broker_url = f"amqp://{os.getenv('BROKER_USER', 'default_user')}:{os.getenv('BROKER_PASSWORD', 'default_password')}@{os.getenv('BROKER_HOST', 'localhost')}:5672/{os.getenv('BROKER_VHOST', 'default_vhost')}"
 
-CELERY_ASYNC_TASK_NAME='run_async_task'
-CELERY_PLANNED_TASK_NAME='run_planned_task'
-CELERY_PERIODIC_TASK_NAME='run_periodic_task'
+CELERY_ASYNC_TASK_NAME = 'run_async_task'
+CELERY_PLANNED_TASK_NAME = 'run_planned_task'
+CELERY_PERIODIC_TASK_NAME = 'run_periodic_task'
+CELERY_MONITOR_HOST = f"http://{os.getenv('MONITOR_HOST', 'localhost')}:5555/"

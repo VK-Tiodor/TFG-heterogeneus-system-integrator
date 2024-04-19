@@ -12,6 +12,7 @@ x-base-app-conf: &base-app-conf
     - BROKER_PASSWORD=${RABBITMQ_PASSWORD:-default_password}
     - BROKER_HOST=${RABBITMQ_HOST:-broker}
     - BROKER_VHOST=${RABBITMQ_VHOST:-default_vhost} 
+    - MONITOR_HOST=${FLOWER_HOST:-monitor}
   depends_on:
     - db
     - broker
