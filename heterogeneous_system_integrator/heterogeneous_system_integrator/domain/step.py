@@ -14,4 +14,7 @@ class TransferStep(Base):
 
 class TransformStep(Base):
     mappings = models.ManyToManyField(Mapping, related_name='transform_steps', help_text='Mappings to choose which data fields are going to be uploaded and from which origin')
-    conversion = models.ManyToManyField(Conversion, related_name='transform_steps', null=True, blank=True, help_text='Conversions to modify the field values that are going to be uploaded')
+    discard_leftover_fields = models.BooleanField(default=True, help_text='Behavior with the data fields that have not been mapped.')
+    conversions = models.ManyToManyField(Conversion, related_name='transform_steps', null=True, blank=True, help_text='Conversions to modify the field values that are going to be uploaded')
+    conversions_after_mappings = models.BooleanField(null=True, blank=True, help_text='Conversions change values over the specified field names. This process can be done on the original fields or the mapped fields.')
+    

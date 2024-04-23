@@ -22,6 +22,7 @@ class ApiDataLocationService(BaseService):
 class DbDataLocationService(BaseService):
     MODEL_CLASS = DbDataLocationRepository
 
+    #TODO
     @classmethod
     def download_data(cls, data_location: DbDataLocation) -> list[dict]:
         connection = data_location.connection
@@ -36,6 +37,7 @@ class DbDataLocationService(BaseService):
 class FtpDataLocationService(BaseService):
     MODEL_CLASS = FtpDataLocationRepository
 
+    #TODO
     @classmethod
     def download_data(cls, data_location: ApiDataLocation) -> list[dict]:
         connection = data_location.connection
