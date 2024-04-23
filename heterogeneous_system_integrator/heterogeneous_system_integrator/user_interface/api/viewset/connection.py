@@ -1,9 +1,21 @@
-from heterogeneous_system_integrator.service.connection import ConnectionService
-from heterogeneous_system_integrator.user_interface.api.serializer.connection import ConnectionSerializer
+from heterogeneous_system_integrator.service.connection import ApiConnectionService, DbConnectionService, FtpConnectionService
+from heterogeneous_system_integrator.user_interface.api.serializer.connection import ApiConnectionSerializer, DbConnectionSerializer, FtpConnectionSerializer
 from heterogeneous_system_integrator.user_interface.api.viewset.base import BaseViewset
 
 
-class ConnectionViewset(BaseViewset):
+class ApiConnectionViewset(BaseViewset):
     
-    SERVICE_CLASS = ConnectionService
-    serializer_class = ConnectionSerializer
+    SERVICE_CLASS = ApiConnectionService
+    serializer_class = ApiConnectionSerializer
+
+
+class DbConnectionViewset(BaseViewset):
+    
+    SERVICE_CLASS = DbConnectionService
+    serializer_class = DbConnectionSerializer
+
+
+class FtpConnectionViewset(BaseViewset):
+    
+    SERVICE_CLASS = FtpConnectionService
+    serializer_class = FtpConnectionSerializer

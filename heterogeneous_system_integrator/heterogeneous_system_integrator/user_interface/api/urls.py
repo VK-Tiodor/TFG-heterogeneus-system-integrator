@@ -5,7 +5,12 @@ from heterogeneous_system_integrator.domain import *
 
 
 router = DefaultRouter(trailing_slash=False)
-router.register(r'connections/?', ConnectionViewset, Connection._meta.model_name.lower())
+router.register(r'api-connections/?', ApiConnectionViewset, ApiConnection._meta.model_name.lower())
+router.register(r'db-connections/?', DbConnectionViewset, DbConnection._meta.model_name.lower())
+router.register(r'ftp-connections/?', FtpConnectionViewset, FtpConnection._meta.model_name.lower())
+router.register(r'api-data-locations/?', ApiDataLocationViewset, ApiDataLocation._meta.model_name.lower())
+router.register(r'db-data-locations/?', DbDataLocationViewset, DbDataLocation._meta.model_name.lower())
+router.register(r'ftp-data-locations/?', FtpDataLocationViewset, FtpDataLocation._meta.model_name.lower())
 router.register(r'conversions/?', ConversionViewset, Conversion._meta.model_name.lower())
 router.register(r'filters/?', FilterViewset, Filter._meta.model_name.lower())
 router.register(r'mappings/?', MappingViewset, Mapping._meta.model_name.lower())

@@ -1,4 +1,4 @@
-from heterogeneous_system_integrator.service.connection import ConnectionService
+from heterogeneous_system_integrator.service.connection import ApiConnectionService, DbConnectionService, FtpConnectionService
 from heterogeneous_system_integrator.service.conversion import ConversionService
 from heterogeneous_system_integrator.service.filter import FilterService
 from heterogeneous_system_integrator.service.mapping import MappingService

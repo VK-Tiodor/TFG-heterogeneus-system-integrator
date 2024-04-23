@@ -1,5 +1,6 @@
-from heterogeneous_system_integrator.user_interface.api.viewset.connection import ConnectionViewset
+from heterogeneous_system_integrator.user_interface.api.viewset.connection import ApiConnectionViewset, DbConnectionViewset, FtpConnectionViewset
 from heterogeneous_system_integrator.user_interface.api.viewset.conversion import ConversionViewset
+from heterogeneous_system_integrator.user_interface.api.viewset.data_location import ApiDataLocationViewset, DbDataLocationViewset, FtpDataLocationViewset
 from heterogeneous_system_integrator.user_interface.api.viewset.filter import FilterViewset
 from heterogeneous_system_integrator.user_interface.api.viewset.mapping import MappingViewset
 from heterogeneous_system_integrator.user_interface.api.viewset.path import ApiPathViewset, DbPathViewset, FtpPathViewset

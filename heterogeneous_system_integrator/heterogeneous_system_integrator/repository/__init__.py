@@ -1,4 +1,4 @@
-from heterogeneous_system_integrator.repository.connection import ConnectionRepository
+from heterogeneous_system_integrator.repository.connection import ApiConnectionRepository, DbConnectionRepository, FtpConnectionRepository
 from heterogeneous_system_integrator.repository.conversion import ConversionRepository
 from heterogeneous_system_integrator.repository.filter import FilterRepository
 from heterogeneous_system_integrator.repository.mapping import MappingRepository

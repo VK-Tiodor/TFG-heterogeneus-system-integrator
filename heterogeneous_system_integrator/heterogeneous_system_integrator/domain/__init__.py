@@ -1,5 +1,6 @@
-from heterogeneous_system_integrator.domain.connection import Connection
+from heterogeneous_system_integrator.domain.connection import ApiConnection, DbConnection, FtpConnection
 from heterogeneous_system_integrator.domain.conversion import Conversion
+from heterogeneous_system_integrator.domain.data_location import ApiDataLocation, DbDataLocation, FtpDataLocation
 from heterogeneous_system_integrator.domain.filter import Filter
 from heterogeneous_system_integrator.domain.mapping import Mapping
 from heterogeneous_system_integrator.domain.path import ApiPath, DbPath, FtpPath

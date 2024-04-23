@@ -22,18 +22,18 @@ app.autodiscover_tasks()
 
 
 @app.task(bind=True, name=settings.CELERY_ASYNC_TASK_NAME)
-def run_async_task(self, pk):
-    AsyncTaskService.run(pk)
+def run_async_task(self, task):
+    return AsyncTaskService.run(task)
 
 
 @app.task(bind=True, name=settings.CELERY_PLANNED_TASK_NAME)
-def run_planned_task(self, pk):
-    PlannedTaskService.run(pk)
+def run_planned_task(self, task):
+    return PlannedTaskService.run(task)
 
 
 @app.task(bind=True, name=settings.CELERY_PERIODIC_TASK_NAME)
-def run_periodic_task(self, pk):
-    PeriodicTaskService.run(pk)
+def run_periodic_task(self, task):
+    return PeriodicTaskService.run(task)
 
 
 @app.task(bind=True, ignore_result=True)

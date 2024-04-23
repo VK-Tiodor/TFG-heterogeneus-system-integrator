@@ -3,14 +3,7 @@ from django.contrib.admin import AdminSite, ModelAdmin
 from django.utils.translation import gettext as _
 from django_celery_results.models import TaskResult
 
-from heterogeneous_system_integrator.domain.connection import Connection
-from heterogeneous_system_integrator.domain.conversion import Conversion
-from heterogeneous_system_integrator.domain.filter import Filter
-from heterogeneous_system_integrator.domain.mapping import Mapping
-from heterogeneous_system_integrator.domain.path import ApiPath, DbPath, FtpPath
-from heterogeneous_system_integrator.domain.step import TransferStep, TransformStep
-from heterogeneous_system_integrator.domain.subtask import Subtask
-from heterogeneous_system_integrator.domain.task import AsyncTask, PlannedTask, PeriodicTask
+from heterogeneous_system_integrator.domain import *
 from heterogeneous_system_integrator.settings import MAIN_APP_VERBOSE, CELERY_MONITOR_HOST
 
 
@@ -32,18 +25,23 @@ class MyAdminSite(AdminSite):
 
 admin_site = MyAdminSite()
 models_to_register=[
+    ApiConnection,
+    ApiDataLocation,
     ApiPath,
-    TaskResult,
     AsyncTask,
-    Connection,
     Conversion,
+    DbConnection,
+    DbDataLocation,
     DbPath,
     Filter, 
+    FtpConnection,
+    FtpDataLocation,
     FtpPath,
     Mapping,
     PeriodicTask,
     PlannedTask,
     Subtask, 
+    TaskResult,
     TransferStep,
     TransformStep,
 ]
