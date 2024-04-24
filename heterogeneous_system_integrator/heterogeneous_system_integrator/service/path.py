@@ -17,11 +17,10 @@ class ApiPathService(BaseService):
         return data
 
     @classmethod
-    def build_full_url(cls, connection: ApiConnection, endpoint: str) -> str:
-        url = connection.hostname
-        url = url[:-1] if url.endswith('/') else url
+    def build_full_url(cls, base_url: str, endpoint: str) -> str:
+        base_url = base_url[:-1] if base_url.endswith('/') else base_url
         endpoint = endpoint[1:] if endpoint.startswith('/') else endpoint
-        return f'{url}/{endpoint}'
+        return f'{base_url}/{endpoint}'
 
 
 class DbPathService(BaseService):

@@ -17,7 +17,7 @@ class FilterService(BaseService):
             keep = (filter_.type == FILTER_TYPE_KEEP)
             
             for row in data:
-                if not row.get():
+                if not row.get(field_name):
                     raise TypeError(f'Field name from Filter {str(filter_)} config is incorrect. There is no such field as {field_name} in the data.')
                 
                 if (OPERATIONS[operator](row[field_name], comparison_value) and keep) or (not OPERATIONS[operator](row[field_name], comparison_value) and not keep):

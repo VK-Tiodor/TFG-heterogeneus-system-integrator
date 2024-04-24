@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, IntegrityError
 
 from heterogeneous_system_integrator.domain.base import Base, BaseConnection
 
@@ -9,9 +9,8 @@ API_TYPES = {
 
 API_AUTH_TYPES = {
     (API_AUTH_TYPE_BASIC := 'basic'): 'Basic',
-    (API_AUTH_TYPE_JWT := 'jwt'): 'JWT',
-    (API_AUTH_TYPE_KEY := 'key'): 'Api key',
-    (API_AUTH_TYPE_OAUTH := 'oauth'): 'OAuth',
+    (API_AUTH_TYPE_BEARER := 'bearer'): 'Bearer',
+    (API_AUTH_TYPE_KEY := 'key'): 'X-Api-Key',
 }
 
 DB_TYPES = {
@@ -28,13 +27,20 @@ FTP_TYPES = {
 
 
 class ApiConnection(Base, BaseConnection):
-    username_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the username that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_JWT]} or {API_AUTH_TYPES[API_AUTH_TYPE_OAUTH]}')
-    password_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the password that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_JWT]} or {API_AUTH_TYPES[API_AUTH_TYPE_OAUTH]}')
-    access_token_field_name = models.CharField(null=True, blank=True, help_text='Field name of the access token that comes in the login response. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_JWT]} or {API_AUTH_TYPES[API_AUTH_TYPE_OAUTH]}')
     auth_endpoint = models.CharField(null=True, blank=True)
-    auth_in_payload = models.BooleanField(null=True, blank=True, help_text='Login data is sent in the payload of the request. By default the login information is sent in the headers of the request')
     auth_type = models.CharField(choices=list(API_AUTH_TYPES.items()), null=True, blank=True, help_text='Authentication method. Leave blank if no login is required to use the API')
+    username_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the username that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}')
+    password_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the password that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}')
+    access_token_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the access token that comes in the login response. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}')
     api_type = models.CharField(choices=list(API_TYPES.items()))
+
+    def save(self, *args, **kwargs):
+        if (self.username or self.password):
+            if not (self.auth_endpoint and self.auth_type):
+                raise IntegrityError(f'Auth endpoint and Auth type must be fulfilled when API requires to be logged.')
+            if self.auth_type == API_AUTH_TYPE_BEARER and not (self.access_token_field_name and self.username_field_name and self.password_field_name):
+                raise IntegrityError(f'Access token field name, Username field name and Password field name must be fulfilled when auth type is {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}')
+        return super().save(*args, **kwargs)
 
 
 class DbConnection(Base, BaseConnection):

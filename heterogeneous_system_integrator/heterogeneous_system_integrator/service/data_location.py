@@ -10,40 +10,46 @@ class ApiDataLocationService(BaseService):
 
     @classmethod
     def download_data(cls, data_location: ApiDataLocation) -> list[dict]:
+        url, headers = cls._prepare_data_transfer(data_location)
+        data = ApiConnectionService.download_data(url, headers)
+        data = ApiPathService.get_clean_data(data, data_location.path)
+        return data
+    
+    @classmethod
+    def upload_data(cls, data_location: ApiDataLocation, data: list[dict]) -> None:
+        url, headers = cls._prepare_data_transfer(data_location)
+        ApiConnectionService.upload_data(url, headers, data)
+
+    @classmethod
+    def _prepare_data_transfer(cls, data_location: ApiDataLocation) -> tuple[dict, dict, str]:
         connection = data_location.connection
         path = data_location.path
-        headers, payload = ApiConnectionService.prepare_message(connection)
         url = ApiPathService.build_full_url(connection, path)
-        data = ApiConnectionService.download_data(url, headers, payload)
-        data = ApiPathService.get_clean_data(data, path)
-        return data
+        headers = ApiConnectionService.build_headers(connection)
+        return url, headers
 
 
+#TODO
 class DbDataLocationService(BaseService):
     MODEL_CLASS = DbDataLocationRepository
 
-    #TODO
     @classmethod
     def download_data(cls, data_location: DbDataLocation) -> list[dict]:
-        connection = data_location.connection
-        path = data_location.path
-        headers, payload = DbConnectionService.prepare_message(connection)
-        url = DbPathService.build_full_url(connection, path)
-        data = DbConnectionService.download_data(url, headers, payload)
-        data = DbPathService.get_clean_data(data, path)
-        return data
+        pass
+    
+    @classmethod
+    def upload_data(cls, data_location: DbDataLocation, data: list[dict]) -> None:
+        pass
 
 
+#TODO
 class FtpDataLocationService(BaseService):
     MODEL_CLASS = FtpDataLocationRepository
 
-    #TODO
     @classmethod
-    def download_data(cls, data_location: ApiDataLocation) -> list[dict]:
-        connection = data_location.connection
-        path = data_location.path
-        headers, payload = FtpConnectionService.prepare_message(connection)
-        url = FtpPathService.build_full_url(connection, path)
-        data = FtpConnectionService.download_data(url, headers, payload)
-        data = FtpPathService.get_clean_data(data, path)
-        return data
+    def download_data(cls, data_location: FtpDataLocation) -> list[dict]:
+        pass
+    
+    @classmethod
+    def upload_data(cls, data_location: FtpDataLocation, data: list[dict]) -> None:
+        pass

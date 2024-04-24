@@ -28,7 +28,17 @@ class TransferStepService(BaseService):
     #TODO
     @classmethod
     def upload_data(cls, data: list[dict], step: TransferStep) -> None:
-        pass
+        data_location = step.data_location
+
+        data = FilterService.filter_data(data, step.filters)
+
+        if isinstance(data_location, ApiDataLocation):
+            data = ApiDataLocationService.upload_data(data_location, data)
+        elif isinstance(data_location, DbDataLocation):
+            data = DbDataLocationService.upload_data(data_location, data)
+        else:
+            data = FtpDataLocationService.upload_data(data_location, data)
+
 
 class TransformStepService(BaseService):
     REPOSITORY_CLASS = TransformStepRepository
