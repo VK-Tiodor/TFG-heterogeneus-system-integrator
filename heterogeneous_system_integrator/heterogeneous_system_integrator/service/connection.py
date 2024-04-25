@@ -1,4 +1,5 @@
 from base64 import b64encode
+from json import dumps
 
 from cryptography.fernet import Fernet
 import requests
@@ -26,21 +27,29 @@ class ApiConnectionService(BaseService):
         if not response.ok:
             try:
                 response.raise_for_status()
+            
             except Exception as ex:
                 raise TypeError(f'Data download process failed. Reason: {str(ex)}')
+        
         data = response.json
         return data
 
     @classmethod
-    def upload_data(cls, url: str, headers: dict, data: list[dict]):
+    def upload_data(cls, url: str, headers: dict, data: list[dict]) -> list[str]:
+        responses = []
         for batch in batch_processor(data):
             response = requests.post(url=url, headers=headers, data=data)
 
             if not response.ok:
                 try:
                     response.raise_for_status()
+                
                 except Exception as ex:
-                    raise TypeError(f'Data upload process failed. Reason: {str(ex)}')
+                    responses += [f'Data upload process failed. Reason: {str(ex)}']
+                
+            responses += [dumps(response.json(), indent=2)]
+        
+        return responses
         
     @classmethod
     def build_headers(cls, connection: ApiConnection) -> dict:
@@ -49,11 +58,13 @@ class ApiConnectionService(BaseService):
                 'Accept' : 'application/json',
                 'Content-type' : 'application/json',
             }
+        
         else:
             headers = {
                 'Accept' : 'application/xml',
                 'Content-type' : 'application/xml',
             }
+        
         headers = cls._authenticate(connection, headers)
         return headers
 
@@ -85,6 +96,7 @@ class ApiConnectionService(BaseService):
             if not response.ok:
                 try:
                     response.raise_for_status()
+                
                 except Exception as ex:
                     raise TypeError(f'Login request failed. Reason: {str(ex)}')
                 

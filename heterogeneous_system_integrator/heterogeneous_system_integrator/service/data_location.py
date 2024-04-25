@@ -16,9 +16,9 @@ class ApiDataLocationService(BaseService):
         return data
     
     @classmethod
-    def upload_data(cls, data_location: ApiDataLocation, data: list[dict]) -> None:
+    def upload_data(cls, data_location: ApiDataLocation, data: list[dict]) -> list[str]:
         url, headers = cls._prepare_data_transfer(data_location)
-        ApiConnectionService.upload_data(url, headers, data)
+        return ApiConnectionService.upload_data(url, headers, data)
 
     @classmethod
     def _prepare_data_transfer(cls, data_location: ApiDataLocation) -> tuple[dict, dict, str]:

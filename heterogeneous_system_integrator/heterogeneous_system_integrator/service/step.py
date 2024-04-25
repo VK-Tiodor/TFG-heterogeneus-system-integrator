@@ -16,8 +16,10 @@ class TransferStepService(BaseService):
         
         if isinstance(data_location, ApiDataLocation):
             data = ApiDataLocationService.download_data(data_location)
+        
         elif isinstance(data_location, DbDataLocation):
             data = DbDataLocationService.download_data(data_location)
+        
         else:
             data = FtpDataLocationService.download_data(data_location)
 
@@ -25,19 +27,22 @@ class TransferStepService(BaseService):
         
         return data
 
-    #TODO
     @classmethod
-    def upload_data(cls, data: list[dict], step: TransferStep) -> None:
+    def upload_data(cls, data: list[dict], step: TransferStep) -> list[str]:
         data_location = step.data_location
 
         data = FilterService.filter_data(data, step.filters)
 
         if isinstance(data_location, ApiDataLocation):
-            data = ApiDataLocationService.upload_data(data_location, data)
+            responses = ApiDataLocationService.upload_data(data_location, data)
+        
         elif isinstance(data_location, DbDataLocation):
-            data = DbDataLocationService.upload_data(data_location, data)
+            responses = DbDataLocationService.upload_data(data_location, data)
+        
         else:
-            data = FtpDataLocationService.upload_data(data_location, data)
+            responses = FtpDataLocationService.upload_data(data_location, data)
+
+        return responses
 
 
 class TransformStepService(BaseService):

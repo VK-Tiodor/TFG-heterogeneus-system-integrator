@@ -9,10 +9,11 @@ class _BaseTaskService(BaseService):
     #TODO save results
     @classmethod
     def run(cls, task):
-        task_result = f'Task {str(task)} results: \n'
+        task_result = ''
         for subtask in task.subtasks:
             subtask_result = SubtaskService.run(subtask)
-            task_result = f'{task_result}\t {subtask_result}\n'
+            subtask_msg_separator = f"{'#' * 32}{' ' * 4}{str(subtask)}{' ' * 4}{'#' * 32}"
+            task_result = f'{task_result}{subtask_msg_separator}\n{subtask_result}\n'
         return task_result
 
 

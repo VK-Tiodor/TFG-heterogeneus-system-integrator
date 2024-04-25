@@ -12,8 +12,10 @@ class ApiPathService(BaseService):
         for obj_name in path.path_to_results_list.split('.'):
             if data.get(obj_name):
                 data = data[obj_name]
+            
             else:
                 raise TypeError(f'Path to the results list from API Path {str(path)} config is incorrect. There is no such field as {obj_name} in the request response')
+        
         return data
 
     @classmethod
