@@ -13,6 +13,7 @@ class SubtaskService(BaseService):
     def run(cls, subtask: Subtask):
         data_lists = []
         try:
+            # TODO store backups between steps
             for step in subtask.download_steps:
                 data_lists += TransferStepService.download_data(step)
 

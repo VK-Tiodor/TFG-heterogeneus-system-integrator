@@ -32,7 +32,7 @@ class BaseService:
     
     @classmethod
     def update_or_insert(cls, default_properties: dict, **filters) -> Model:
-        return cls.REPOSITORY_CLASS.update_or_create(defaults=default_properties, **filters)
+        return cls.REPOSITORY_CLASS.update_or_insert(defaults=default_properties, **filters)
     
     @classmethod
     def exists(cls, query: QuerySet = None, filters: dict = None, exclude: dict = None, order_by: list = None, distinct: list = None) -> bool:

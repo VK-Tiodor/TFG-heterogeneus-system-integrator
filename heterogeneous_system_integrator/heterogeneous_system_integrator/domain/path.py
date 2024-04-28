@@ -9,7 +9,7 @@ class BasePath(Base):
 
 class ApiPath(BasePath):
     endpoint = models.CharField(help_text='API Endpoint where to apply the requests')
-    path_to_results_list = models.CharField(null=True, blank=True, help_text='Path to the results list from where to get data. Separate field names using dots (.)')
+    path_to_results_list = models.CharField(null=True, blank=True, help_text='Path to the results list inside the API response from where to get data. Separate field names using dots (.)')
 
 
 class DbPath(BasePath):

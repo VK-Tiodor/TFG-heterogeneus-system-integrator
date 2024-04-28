@@ -6,7 +6,6 @@ from heterogeneous_system_integrator.service.subtask import SubtaskService
 
 class _BaseTaskService(BaseService):
     
-    #TODO save results
     @classmethod
     def run(cls, task):
         task_result = ''

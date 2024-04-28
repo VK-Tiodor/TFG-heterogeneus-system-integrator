@@ -24,7 +24,7 @@ class ApiDataLocationService(BaseService):
     def _prepare_data_transfer(cls, data_location: ApiDataLocation) -> tuple[dict, dict, str]:
         connection = data_location.connection
         path = data_location.path
-        url = ApiPathService.build_full_url(connection, path)
+        url = ApiPathService.build_full_url(connection.hostname, path)
         headers = ApiConnectionService.build_headers(connection)
         return url, headers
 

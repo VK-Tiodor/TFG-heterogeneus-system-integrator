@@ -15,6 +15,7 @@ class PlannedTaskSerializer(ModelSerializer):
     class Meta:
         model = PlannedTask
         fields = '__all__'
+        exclude = ['celery_task']
 
 
 class PeriodicTaskSerializer(ModelSerializer):
@@ -22,3 +23,4 @@ class PeriodicTaskSerializer(ModelSerializer):
     class Meta:
         model = PeriodicTask
         fields = '__all__'
+        exclude = ['celery_task']
