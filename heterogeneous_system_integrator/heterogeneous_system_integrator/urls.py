@@ -15,21 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
-from django.shortcuts import redirect
 
-from heterogeneous_system_integrator.service.user import UserService
 from heterogeneous_system_integrator.user_interface.admin_site import admin_site
 from heterogeneous_system_integrator.user_interface.api.urls import router
 
-ADMIN_PATH = 'admin/'
-API_PATH = 'api/'
-
-def redirect_to_admin_site_urls(request):
-    UserService.force_admin_login(request)
-    return redirect(ADMIN_PATH)
 
 urlpatterns = [
-    path("", redirect_to_admin_site_urls),
-    path(ADMIN_PATH, admin_site.urls),
-    path(API_PATH, include(router.urls))
+    path("", admin_site.urls),
+    path("api/", include(router.urls)),
 ]

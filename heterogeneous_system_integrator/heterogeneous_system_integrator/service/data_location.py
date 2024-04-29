@@ -6,7 +6,7 @@ from heterogeneous_system_integrator.service.path import ApiPathService, DbPathS
 
 
 class ApiDataLocationService(BaseService):
-    MODEL_CLASS = ApiDataLocationRepository
+    REPOSITORY_CLASS = ApiDataLocationRepository
 
     @classmethod
     def download_data(cls, data_location: ApiDataLocation) -> list[dict]:
@@ -31,7 +31,7 @@ class ApiDataLocationService(BaseService):
 
 #TODO
 class DbDataLocationService(BaseService):
-    MODEL_CLASS = DbDataLocationRepository
+    REPOSITORY_CLASS = DbDataLocationRepository
 
     @classmethod
     def download_data(cls, data_location: DbDataLocation) -> list[dict]:
@@ -44,7 +44,7 @@ class DbDataLocationService(BaseService):
 
 #TODO
 class FtpDataLocationService(BaseService):
-    MODEL_CLASS = FtpDataLocationRepository
+    REPOSITORY_CLASS = FtpDataLocationRepository
 
     @classmethod
     def download_data(cls, data_location: FtpDataLocation) -> list[dict]:

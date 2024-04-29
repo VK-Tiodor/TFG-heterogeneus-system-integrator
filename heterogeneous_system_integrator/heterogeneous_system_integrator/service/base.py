@@ -47,7 +47,7 @@ class BaseService:
         return cls.REPOSITORY_CLASS.select(columns, query, filters, exclude, order_by, distinct)
     
     @classmethod
-    def insert(cls, model: Model, models: list[Model], **properties) -> Model:
+    def insert(cls, model: Model = None, models: list[Model] = None, **properties) -> Model:
         return cls.REPOSITORY_CLASS.insert(model, models, **properties)
     
     @classmethod

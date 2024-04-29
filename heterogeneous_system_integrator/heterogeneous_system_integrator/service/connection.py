@@ -19,7 +19,7 @@ def batch_processor(cls, data: list[dict]):
 
 
 class ApiConnectionService(BaseService):
-    MODEL_CLASS = ApiConnectionRepository
+    REPOSITORY_CLASS = ApiConnectionRepository
 
     @classmethod
     def download_data(cls, url: str, headers: dict) -> list[dict]:
@@ -108,7 +108,7 @@ class ApiConnectionService(BaseService):
     
 
 class DbConnectionService(BaseService):
-    MODEL_CLASS = DbConnectionRepository
+    REPOSITORY_CLASS = DbConnectionRepository
 
     @classmethod
     def download_data(cls, connection: DbConnection, path: DbPath):
@@ -116,7 +116,7 @@ class DbConnectionService(BaseService):
 
 
 class FtpConnectionService(BaseService):
-    MODEL_CLASS = FtpConnectionRepository
+    REPOSITORY_CLASS = FtpConnectionRepository
 
     @classmethod
     def download_data(cls, connection: FtpConnection, path: FtpPath):
