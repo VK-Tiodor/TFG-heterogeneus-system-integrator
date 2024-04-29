@@ -1,10 +1,7 @@
 import operator
 
-from cryptography.fernet import Fernet
 from django.db import models
-from django.utils.text import slugify
 
-from heterogeneous_system_integrator.settings import SECRET_KEY
 
 
 OPERATOR_TYPES = {
@@ -38,11 +35,6 @@ class Base(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
     def __str__(self) -> str:
         return self.name
 
@@ -64,12 +56,6 @@ class BaseConnection(models.Model):
     port = models.IntegerField(null=True, blank=True, help_text='5432')
     username = models.CharField(null=True, blank=True)
     password = models.CharField(null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        if self.password:
-            encryptor = Fernet(SECRET_KEY.encode())
-            self.password = encryptor.encrypt(self.password.encode())
-        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True

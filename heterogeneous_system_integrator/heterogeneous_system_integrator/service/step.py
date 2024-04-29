@@ -51,16 +51,16 @@ class TransformStepService(BaseService):
     @classmethod
     def transform_data(cls, data: list[dict], step: TransformStep) -> None:
         mappings = step.mappings
-        discard_leftover_fields = step.discard_leftover_fields
+        keep_leftover_fields = step.keep_leftover_fields
         conversions = step.conversions
         mappings_first = step.conversions_after_mappings
         
         if mappings_first:
-            data = MappingService.map_data(data, mappings, discard_leftover_fields)
+            data = MappingService.map_data(data, mappings, keep_leftover_fields)
             data = ConversionService.convert_data(data, conversions)
         
         else:
             data = ConversionService.convert_data(data, conversions)
-            data = MappingService.map_data(data, mappings, discard_leftover_fields)
+            data = MappingService.map_data(data, mappings, keep_leftover_fields)
         
         return data

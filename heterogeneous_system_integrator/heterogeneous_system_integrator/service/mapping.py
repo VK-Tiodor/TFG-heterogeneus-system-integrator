@@ -7,7 +7,7 @@ class MappingService(BaseService):
     REPOSITORY_CLASS = MappingRepository
 
     @classmethod
-    def map_data(cls, data: list[dict], mappings: list[Mapping], discard_leftover_fields: bool):
+    def map_data(cls, data: list[dict], mappings: list[Mapping], keep_leftover_fields: bool):
         new_data = []
         
         for row in data:
@@ -27,7 +27,7 @@ class MappingService(BaseService):
             for mapping in mappings_with_constants:
                 new_row = cls._set_value_in_row_field(mapping.constant_value, new_row, mapping.destination_field_name)
 
-            if not discard_leftover_fields:
+            if keep_leftover_fields:
                 new_row.update(old_row)
 
             new_data += [new_row]

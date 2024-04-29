@@ -1,7 +1,6 @@
 from base64 import b64encode
 from json import dumps
 
-from cryptography.fernet import Fernet
 import requests
 
 from heterogeneous_system_integrator.domain.connection import ApiConnection, DbConnection, FtpConnection, API_AUTH_TYPE_BASIC, API_AUTH_TYPE_KEY, API_TYPE_REST
@@ -73,8 +72,7 @@ class ApiConnectionService(BaseService):
         if not (connection.username or connection.password):
             return headers
         
-        decryptor = Fernet(SECRET_KEY.encode())
-        passwd = decryptor.decrypt(connection.password)
+        passwd = cls.REPOSITORY_CLASS.get_password(connection)
 
         if connection.auth_type == API_AUTH_TYPE_BASIC:
             auth = {'Authorization': f'Basic {b64encode(f"{connection.username}:{passwd}".encode("utf-8")).decode("ascii")}'}

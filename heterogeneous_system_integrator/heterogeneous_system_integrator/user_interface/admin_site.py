@@ -1,3 +1,4 @@
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models.fields import related, reverse_related
 from django.contrib.admin import AdminSite, ModelAdmin
 from django.db.models.query import QuerySet
@@ -6,6 +7,8 @@ from django_celery_results.models import TaskResult
 
 from heterogeneous_system_integrator.domain import *
 from heterogeneous_system_integrator.service import *
+from heterogeneous_system_integrator.service.base import BaseService
+from heterogeneous_system_integrator.service.user import UserService
 from heterogeneous_system_integrator.settings import MAIN_APP_VERBOSE, CELERY_MONITOR_HOST
 
 
@@ -24,9 +27,12 @@ class MyAdminSite(AdminSite):
         context['monitor_url'] = CELERY_MONITOR_HOST
         return context
     
-    # No user system is implemented
-    def has_permission(self, request):
-        return True
+    # No user system implemented
+    def login(self, request, extra_context=None):
+        if not request.user.pk:
+            UserService.force_admin_login(request)
+        return super().login(request, extra_context)
+
 
 
 admin_site = MyAdminSite()
@@ -55,7 +61,7 @@ models_and_services=[
 
 for model, service in models_and_services:  
     class MyModelAdmin(ModelAdmin):
-        SERVICE_CLASS = service
+        SERVICE_CLASS: BaseService = service
         list_display = [
             field.name for field in model._meta.get_fields() 
             if not isinstance(field, (related.RelatedField, reverse_related.ForeignObjectRel)) and field.name != 'slug'
@@ -73,15 +79,22 @@ for model, service in models_and_services:
                 return self.SERVICE_CLASS.create_query(filters={'name__icontains': search_term}, order_by=['name']), duplicates
 
         def save_model(self, request, obj, form, change) -> None:
-            if not change:
-                return self.SERVICE_CLASS.insert(model=obj)
+            if change:
+                return self.SERVICE_CLASS.save_model(obj)
+            
+            relations = {field_name:value for field_name, value in form.cleaned_data.items() if isinstance(value, QuerySet)}
+            if not relations:
+                return self.SERVICE_CLASS.save_model(obj)
             else:
-                return self.SERVICE_CLASS.update(model=obj)
+                return self.SERVICE_CLASS.save_model_with_relations(obj, relations)
+        
+        def save_related(self, request, form, formsets, change) -> None:
+            pass
         
         def delete_model(self, request, obj) -> None:
-            return self.SERVICE_CLASS.delete(model=obj)
+            return self.SERVICE_CLASS.delete_model(model=obj)
         
         def delete_queryset(self, request, queryset) -> None:
-            return self.SERVICE_CLASS.delete(query=queryset)
+            return self.SERVICE_CLASS.delete_query(query=queryset)
     
     admin_site.register(model, MyModelAdmin)
