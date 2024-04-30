@@ -1,3 +1,4 @@
+from heterogeneous_system_integrator.service.base import BaseService
 from heterogeneous_system_integrator.service.connection import ApiConnectionService, DbConnectionService, FtpConnectionService
 from heterogeneous_system_integrator.service.conversion import ConversionService
 from heterogeneous_system_integrator.service.data_location import ApiDataLocationService, DbDataLocationService, FtpDataLocationService
@@ -9,3 +10,4 @@ from heterogeneous_system_integrator.service.step import TransferStepService, Tr
 from heterogeneous_system_integrator.service.subtask import SubtaskService
 from heterogeneous_system_integrator.service.task import AsyncTaskService, PlannedTaskService, PeriodicTaskService
 from heterogeneous_system_integrator.service.task_result import TaskResultService
+from heterogeneous_system_integrator.service.user import UserService

@@ -1,18 +1,18 @@
-from django.core.handlers.wsgi import WSGIRequest
+from django.contrib import messages, admin
 from django.db.models.fields import related, reverse_related
-from django.contrib.admin import AdminSite, ModelAdmin
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext as _
+from django.utils.text import get_text_list
 from django_celery_results.models import TaskResult
 
+from heterogeneous_system_integrator import celery
 from heterogeneous_system_integrator.domain import *
 from heterogeneous_system_integrator.service import *
-from heterogeneous_system_integrator.service.base import BaseService
-from heterogeneous_system_integrator.service.user import UserService
 from heterogeneous_system_integrator.settings import MAIN_APP_VERBOSE, CELERY_MONITOR_HOST
+from heterogeneous_system_integrator.user_interface.api.serializer.task import AsyncTaskSerializer
 
 
-class MyAdminSite(AdminSite):
+class MyAdminSite(admin.AdminSite):
     index_template = 'index.html'
     app_index_template = 'app_index.html'
     # Text to put at the end of each page's <title>.
@@ -34,13 +34,11 @@ class MyAdminSite(AdminSite):
         return super().login(request, extra_context)
 
 
-
 admin_site = MyAdminSite()
 models_and_services=[
     (ApiConnection, ApiConnectionService),
     (ApiDataLocation, ApiDataLocationService),
     (ApiPath, ApiPathService),
-    (AsyncTask, AsyncTaskService),
     (Conversion, ConversionService),
     (DbConnection, DbConnectionService),
     (DbDataLocation, DbDataLocationService),
@@ -57,15 +55,27 @@ models_and_services=[
     (TaskResult, TaskResultService),
     (TransferStep, TransferStepService),
     (TransformStep, TransformStepService),
+    (AsyncTask, AsyncTaskService),
 ]
 
+@admin.action(description='Execute tasks')
+def execute_tasks(self, request, queryset):
+    task_names = []
+    for task in queryset:
+        celery.run_async_task.delay(**celery.serialize_task_data(task))
+        task_names += [str(task)]
+    
+    messages.add_message(request, messages.INFO, f'Async tasks {_(get_text_list(task_names, "and"))} {"have" if len(task_names) > 1 else "has"} been queued for execution.')
+
+
 for model, service in models_and_services:  
-    class MyModelAdmin(ModelAdmin):
+    class MyModelAdmin(admin.ModelAdmin):
         SERVICE_CLASS: BaseService = service
         list_display = [
             field.name for field in model._meta.get_fields() 
             if not isinstance(field, (related.RelatedField, reverse_related.ForeignObjectRel)) and field.name != 'slug'
         ]
+        actions = [execute_tasks] if model is AsyncTask else []
         
         def get_queryset(self, request) -> QuerySet:
             return self.SERVICE_CLASS.create_query(order_by=['name'])
@@ -96,5 +106,11 @@ for model, service in models_and_services:
         
         def delete_queryset(self, request, queryset) -> None:
             return self.SERVICE_CLASS.delete_query(query=queryset)
+        
+        def response_post_save_change(self, request, obj):
+            if '_execute' in request.POST:
+                celery.run_async_task.delay(**celery.serialize_task_data(obj))
+                messages.add_message(request, messages.INFO, f'Async task {str(obj)} has been queued for execution.')
+            return super().response_post_save_change(request, obj)
     
     admin_site.register(model, MyModelAdmin)

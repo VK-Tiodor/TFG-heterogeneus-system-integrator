@@ -34,7 +34,7 @@ services:
   
   worker:
     <<: *base-app-conf
-    entrypoint: [ "celery", "-A", "heterogeneous_system_integrator", "worker", "--autoscale=4,1", "-l", "info"]
+    entrypoint: [ "celery", "-A", "heterogeneous_system_integrator", "worker", "--autoscale=4,1", "-l", "info", "-P", "eventlet"]
 
   beat:
     <<: *base-app-conf

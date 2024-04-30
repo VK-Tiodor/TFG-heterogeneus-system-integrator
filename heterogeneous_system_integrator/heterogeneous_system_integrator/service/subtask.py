@@ -13,20 +13,19 @@ class SubtaskService(BaseService):
     def run(cls, subtask: Subtask):
         data_lists = []
         try:
-            # TODO store backups between steps
-            for step in subtask.download_steps:
+            for step in subtask.download_steps.all():
                 data_lists += TransferStepService.download_data(step)
 
             data = cls._merge_data(subtask.merge_field_name, data_lists)
-            data = TransformStepService.data(data, subtask.transform_step)
+            data = TransformStepService.transform_data(data, subtask.transform_step)
             responses = TransferStepService.upload_data(data, subtask.upload_step)
         
         except Exception as ex:
-            return f'Subtask {str(subtask)} result: Exit code 1 - {str(ex)}.'
+            return f'Exit code 1 - {str(ex)}.'
         
         result_msg = ''
         for i, response in enumerate(responses):
-            msg_separator = '*' * 32 + ' ' * 4 + f'Batch No.{i}' + ' ' * 4 + '*' * 32
+            msg_separator = '*' * 32 + ' ' * 4 + f'BATCH {i} RESULTS' + ' ' * 4 + '*' * 32
             result_msg = f'{result_msg}{msg_separator}\n{response}\n'
         
         return result_msg

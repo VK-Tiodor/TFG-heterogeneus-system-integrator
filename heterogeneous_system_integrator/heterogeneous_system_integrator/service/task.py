@@ -7,12 +7,12 @@ from heterogeneous_system_integrator.service.subtask import SubtaskService
 class _BaseTaskService(BaseService):
     
     @classmethod
-    def run(cls, task):
-        task_result = ''
-        for subtask in task.subtasks:
+    def run(cls, id, name, slug, created_at, updated_at, subtasks, **kwargs):
+        task_result = '\n' + '%' * 32 + ' ' * 4 + f'TASK {name} RESULTS' + ' ' * 4 + '%' * 32 + '\n'
+        for subtask in SubtaskService.create_query({'pk__in': subtasks}):
             subtask_result = SubtaskService.run(subtask)
-            subtask_msg_separator = f"{'#' * 32}{' ' * 4}{str(subtask)}{' ' * 4}{'#' * 32}"
-            task_result = f'{task_result}{subtask_msg_separator}\n{subtask_result}\n'
+            subtask_msg_separator = '#' * 32 + ' ' * 4 + f'SUBTASK {str(subtask)} RESULTS' + ' ' * 4 + '#' * 32
+            task_result = f'{task_result}{subtask_msg_separator}\n\n\n{subtask_result}\n\n\n'
         return task_result
 
 

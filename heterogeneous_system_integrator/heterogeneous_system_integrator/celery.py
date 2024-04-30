@@ -3,6 +3,8 @@ import os
 from celery import Celery
 
 from heterogeneous_system_integrator import settings
+from heterogeneous_system_integrator.domain.task import AsyncTask
+from heterogeneous_system_integrator.user_interface.api.serializer.task import AsyncTaskSerializer
 from heterogeneous_system_integrator.service.task import AsyncTaskService, PlannedTaskService, PeriodicTaskService
 
 
@@ -21,19 +23,24 @@ app.config_from_object(settings.__name__)
 app.autodiscover_tasks()
 
 
+def serialize_task_data(task: AsyncTask) -> dict:
+    serializer = AsyncTaskSerializer(task)
+    return serializer.data
+
+
 @app.task(bind=True, name=settings.CELERY_ASYNC_TASK_NAME)
-def run_async_task(self, task):
-    return AsyncTaskService.run(task)
+def run_async_task(self, *args, **kwargs):
+    return AsyncTaskService.run(*args, **kwargs)
 
 
 @app.task(bind=True, name=settings.CELERY_PLANNED_TASK_NAME)
-def run_planned_task(self, task):
-    return PlannedTaskService.run(task)
+def run_planned_task(self, *args, **kwargs):
+    return PlannedTaskService.run(*args, **kwargs)
 
 
 @app.task(bind=True, name=settings.CELERY_PERIODIC_TASK_NAME)
-def run_periodic_task(self, task):
-    return PeriodicTaskService.run(task)
+def run_periodic_task(self, *args, **kwargs):
+    return PeriodicTaskService.run(*args, **kwargs)
 
 
 @app.task(bind=True, ignore_result=True)

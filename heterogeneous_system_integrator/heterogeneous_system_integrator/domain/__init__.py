@@ -1,3 +1,4 @@
+from heterogeneous_system_integrator.domain.base import Base, BaseComparator, BaseConnection
 from heterogeneous_system_integrator.domain.connection import ApiConnection, DbConnection, FtpConnection
 from heterogeneous_system_integrator.domain.conversion import Conversion
 from heterogeneous_system_integrator.domain.data_location import ApiDataLocation, DbDataLocation, FtpDataLocation
