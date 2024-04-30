@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import QuerySet
 from django_celery_beat.models import CrontabSchedule
 
 from heterogeneous_system_integrator.domain.period import Period
@@ -31,3 +32,19 @@ class PeriodRepository(BaseRepository):
             celery_crontabs += [crontab]
         CrontabSchedule.objects.bulk_create(celery_crontabs)
         super()._pre_save_multiple_models_operations(models)
+
+    @classmethod
+    def _post_delete_model_operations(cls, model: Period) -> None:
+        super()._post_delete_model_operations(model)
+        crontab = model.celery_crontab
+        crontab.delete()
+    
+    @classmethod
+    def _post_delete_query_operations(cls, query: QuerySet[Period]) -> None:
+        super()._post_delete_query_operations(query)
+        crontab_pks = []
+        
+        for model in query:
+            crontab_pks += [model.celery_crontab]
+
+        CrontabSchedule.objects.filter(pk__in=crontab_pks).delete()

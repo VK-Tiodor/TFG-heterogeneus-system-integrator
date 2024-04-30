@@ -23,18 +23,21 @@ class BaseRepository:
     def union(cls, querysets: list[QuerySet]) -> QuerySet:
         if len(querysets) < 2:
             raise TypeError('Operation needs at least two querysets')
+        
         return querysets[0].union(*querysets[1:])
     
     @classmethod
     def intersection(cls, querysets: list[QuerySet]) -> QuerySet:
         if len(querysets) < 2:
             raise TypeError('Operation needs at least two querysets')
+        
         return querysets[0].intersection(*querysets[1:])
     
     @classmethod
     def difference(cls, querysets: list[QuerySet]) -> QuerySet:
         if len(querysets) < 2:
             raise TypeError('Operation needs at least two querysets')
+        
         return querysets[0].difference(*querysets[1:])
     
     @classmethod
@@ -67,6 +70,7 @@ class BaseRepository:
         for model in models:
             if not model.slug:
                 model.slug = slugify(model.name)
+        
         if fields:
             fields += [model.slug.name]
     
@@ -104,6 +108,7 @@ class BaseRepository:
     @classmethod
     def save_model_with_relations(cls, model: Base, relations: dict) -> Base:
         cls._pre_save_model_operations(model)
+        
         if not model.pk:
             model.save()
         
