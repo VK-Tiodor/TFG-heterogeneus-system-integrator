@@ -1,5 +1,3 @@
-version: 2.24.6
-
 x-base-app-conf: &base-app-conf
   image: heterogeneous-system-integrator
   restart: unless-stopped
