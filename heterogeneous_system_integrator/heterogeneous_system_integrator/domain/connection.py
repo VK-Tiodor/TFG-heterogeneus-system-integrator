@@ -28,10 +28,27 @@ FTP_TYPES = {
 
 class ApiConnection(Base, BaseConnection):
     auth_endpoint = models.CharField(null=True, blank=True)
-    auth_type = models.CharField(choices=list(API_AUTH_TYPES.items()), null=True, blank=True, help_text='Authentication method. Leave blank if no login is required to use the API')
-    username_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the username that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}')
-    password_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the password that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}')
-    access_token_field_name = models.CharField(null=True, blank=True, help_text=f'Field name of the access token that comes in the login response. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}')
+    auth_type = models.CharField(
+        choices=list(API_AUTH_TYPES.items()),
+        null=True,
+        blank=True,
+        help_text='Authentication method. Leave blank if no login is required to use the API'
+    )
+    username_field_name = models.CharField(
+        null=True,
+        blank=True,
+        help_text=f'Field name of the username that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}'
+    )
+    password_field_name = models.CharField(
+        null=True,
+        blank=True,
+        help_text=f'Field name of the password that goes in the login request. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}'
+    )
+    access_token_field_name = models.CharField(
+        null=True,
+        blank=True,
+        help_text=f'Field name of the access token that comes in the login response. Leave blank if auth type is not {API_AUTH_TYPES[API_AUTH_TYPE_BEARER]}'
+    )
     api_type = models.CharField(choices=list(API_TYPES.items()))
 
 

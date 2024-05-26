@@ -2,17 +2,37 @@ from heterogeneous_system_integrator.domain.data_location import ApiDataLocation
 from heterogeneous_system_integrator.repository.data_location import ApiDataLocationRepository, DbDataLocationRepository, FtpDataLocationRepository
 from heterogeneous_system_integrator.service.base import BaseService
 from heterogeneous_system_integrator.service.connection import ApiConnectionService, DbConnectionService, FtpConnectionService
-from heterogeneous_system_integrator.service.path import ApiPathService, DbPathService, FtpPathService
 
 
 class ApiDataLocationService(BaseService):
     REPOSITORY_CLASS = ApiDataLocationRepository
 
     @classmethod
+    def _get_clean_data(cls, data: dict, data_location: ApiDataLocation) -> list[dict]:
+        for obj_name in data_location.path_to_results_list.split('.'):
+            if data.get(obj_name):
+                data = data[obj_name]
+
+            else:
+                raise TypeError(
+                    f'Path to the results list from API Data Location {str(data_location)} config is incorrect. '
+                    f'There is no such field as {obj_name} in the request response'
+                )
+
+        return data
+
+    @classmethod
+    def _prepare_data_transfer(cls, data_location: ApiDataLocation) -> tuple[str, dict]:
+        connection = data_location.connection
+        url = ApiConnectionService.build_full_url(connection, data_location.endpoint)
+        headers = ApiConnectionService.build_headers(connection)
+        return url, headers
+
+    @classmethod
     def download_data(cls, data_location: ApiDataLocation) -> list[dict]:
         url, headers = cls._prepare_data_transfer(data_location)
         data = ApiConnectionService.download_data(url, headers)
-        data = ApiPathService.get_clean_data(data, data_location.path)
+        data = cls._get_clean_data(data, data_location)
         return data
     
     @classmethod
@@ -20,16 +40,8 @@ class ApiDataLocationService(BaseService):
         url, headers = cls._prepare_data_transfer(data_location)
         return ApiConnectionService.upload_data(url, headers, data)
 
-    @classmethod
-    def _prepare_data_transfer(cls, data_location: ApiDataLocation) -> tuple[dict, dict, str]:
-        connection = data_location.connection
-        path = data_location.path
-        url = ApiPathService.build_full_url(connection.hostname, path)
-        headers = ApiConnectionService.build_headers(connection)
-        return url, headers
 
-
-#TODO
+# TODO
 class DbDataLocationService(BaseService):
     REPOSITORY_CLASS = DbDataLocationRepository
 
@@ -42,7 +54,7 @@ class DbDataLocationService(BaseService):
         pass
 
 
-#TODO
+# TODO
 class FtpDataLocationService(BaseService):
     REPOSITORY_CLASS = FtpDataLocationRepository
 

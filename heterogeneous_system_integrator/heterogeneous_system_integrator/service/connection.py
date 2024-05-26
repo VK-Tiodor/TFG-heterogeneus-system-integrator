@@ -4,14 +4,11 @@ from json import dumps
 import requests
 
 from heterogeneous_system_integrator.domain.connection import ApiConnection, DbConnection, FtpConnection, API_AUTH_TYPE_BASIC, API_AUTH_TYPE_KEY, API_TYPE_REST
-from heterogeneous_system_integrator.domain.path import ApiPath, DbPath, FtpPath
 from heterogeneous_system_integrator.repository.connection import ApiConnectionRepository, DbConnectionRepository, FtpConnectionRepository
 from heterogeneous_system_integrator.service.base import BaseService
-from heterogeneous_system_integrator.service.path import ApiPathService
-from heterogeneous_system_integrator.settings import SECRET_KEY
 
 
-def batch_processor(cls, data: list[dict]):
+def batch_processor(data: list[dict]):
     batch_size = 200
     for batch in [data[init_pos:init_pos+batch_size] for init_pos in range(0, len(data), batch_size)]:
         yield batch
@@ -21,7 +18,19 @@ class ApiConnectionService(BaseService):
     REPOSITORY_CLASS = ApiConnectionRepository
 
     @classmethod
-    def download_data(cls, url: str, headers: dict) -> list[dict]:
+    def build_full_url(cls, connection: ApiConnection, endpoint: str) -> str:
+        base_url = connection.hostname
+
+        if base_url.endswith('/'):
+            base_url = base_url[:-1]
+
+        if endpoint.startswith('/'):
+            endpoint = endpoint[1:]
+
+        return f'{connection}/{endpoint}'
+
+    @classmethod
+    def download_data(cls, url: str, headers: dict) -> list[dict] | dict:
         response = requests.get(url=url, headers=headers)
         if not response.ok:
             try:
@@ -53,15 +62,15 @@ class ApiConnectionService(BaseService):
     @classmethod
     def build_headers(cls, connection: ApiConnection) -> dict:
         if connection.api_type == API_TYPE_REST:
-            headers =  {
-                'Accept' : 'application/json',
-                'Content-type' : 'application/json',
+            headers = {
+                'Accept': 'application/json',
+                'Content-type': 'application/json',
             }
         
         else:
             headers = {
-                'Accept' : 'application/xml',
-                'Content-type' : 'application/xml',
+                'Accept': 'application/xml',
+                'Content-type': 'application/xml',
             }
         
         headers = cls._authenticate(connection, headers)
@@ -86,7 +95,7 @@ class ApiConnectionService(BaseService):
                 connection.password_field_name: b64encode(passwd.encode("utf-8")).decode("ascii")
             }
             response = requests.post(
-                ApiPathService.build_full_url(connection.hostname, connection.auth_endpoint),
+                cls.build_full_url(connection, connection.auth_endpoint),
                 headers=headers,
                 data=login
             )
@@ -103,19 +112,21 @@ class ApiConnectionService(BaseService):
         
         headers.update(auth)
         return headers
-    
 
+
+# TODO
 class DbConnectionService(BaseService):
     REPOSITORY_CLASS = DbConnectionRepository
 
     @classmethod
-    def download_data(cls, connection: DbConnection, path: DbPath):
+    def download_data(cls, connection: DbConnection, *args, **kwargs):
         pass
 
 
+# TODO
 class FtpConnectionService(BaseService):
     REPOSITORY_CLASS = FtpConnectionRepository
 
     @classmethod
-    def download_data(cls, connection: FtpConnection, path: FtpPath):
+    def download_data(cls, connection: FtpConnection, *args, **kwargs):
         pass

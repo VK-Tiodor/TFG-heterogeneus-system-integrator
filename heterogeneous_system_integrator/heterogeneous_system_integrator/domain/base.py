@@ -22,8 +22,8 @@ OPERATIONS = {
     OPERATOR_TYPE_IN: operator.contains,
     OPERATOR_TYPE_LT: operator.lt,
     OPERATOR_TYPE_LTE: operator.le,
-    OPERATOR_TYPE_NOT_EQ: (lambda x,y: operator.not_(operator.eq(x,y))),
-    OPERATOR_TYPE_NOT_IN: (lambda x,y: operator.not_(operator.contains(x,y))),
+    OPERATOR_TYPE_NOT_EQ: (lambda x, y: operator.not_(operator.eq(x, y))),
+    OPERATOR_TYPE_NOT_IN: (lambda x, y: operator.not_(operator.contains(x, y))),
 }
 
 

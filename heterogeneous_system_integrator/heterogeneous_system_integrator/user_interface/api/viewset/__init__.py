@@ -3,7 +3,6 @@ from heterogeneous_system_integrator.user_interface.api.viewset.conversion impor
 from heterogeneous_system_integrator.user_interface.api.viewset.data_location import *
 from heterogeneous_system_integrator.user_interface.api.viewset.filter import *
 from heterogeneous_system_integrator.user_interface.api.viewset.mapping import *
-from heterogeneous_system_integrator.user_interface.api.viewset.path import *
 from heterogeneous_system_integrator.user_interface.api.viewset.period import *
 from heterogeneous_system_integrator.user_interface.api.viewset.step import *
 from heterogeneous_system_integrator.user_interface.api.viewset.subtask import *

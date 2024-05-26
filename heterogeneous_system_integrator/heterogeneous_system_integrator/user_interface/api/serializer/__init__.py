@@ -3,7 +3,6 @@ from heterogeneous_system_integrator.user_interface.api.serializer.conversion im
 from heterogeneous_system_integrator.user_interface.api.serializer.data_location import ApiDataLocationSerializer, DbDataLocationSerializer, FtpDataLocationSerializer
 from heterogeneous_system_integrator.user_interface.api.serializer.filter import FilterSerializer
 from heterogeneous_system_integrator.user_interface.api.serializer.mapping import MappingSerializer
-from heterogeneous_system_integrator.user_interface.api.serializer.path import ApiPathSerializer, DbPathSerializer, FtpPathSerializer
 from heterogeneous_system_integrator.user_interface.api.serializer.period import Period
 from heterogeneous_system_integrator.user_interface.api.serializer.step import TransferStepSerializer, TransformStepSerializer
 from heterogeneous_system_integrator.user_interface.api.serializer.subtask import SubtaskSerializer
