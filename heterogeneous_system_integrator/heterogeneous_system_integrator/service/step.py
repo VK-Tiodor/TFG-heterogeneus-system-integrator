@@ -15,16 +15,19 @@ class TransferStepService(BaseService):
     def download_data(cls, step: TransferStep) -> list[dict]:
         data_location = step.data_location
         
-        if isinstance(data_location, ApiDataLocation):
+        if ApiDataLocationService.create_query({'name': data_location.name}).exists():
+            data_location = ApiDataLocationService.get({'name': data_location.name})
             data = ApiDataLocationService.download_data(data_location)
         
-        elif isinstance(data_location, DbDataLocation):
+        elif DbDataLocationService.create_query({'name': data_location.name}).exists():
+            data_location = DbDataLocationService.get({'name': data_location.name})
             data = DbDataLocationService.download_data(data_location)
         
         else:
+            data_location = FtpDataLocationService.get({'name': data_location.name})
             data = FtpDataLocationService.download_data(data_location)
 
-        data = FilterService.filter_data(data, step.filters)
+        data = FilterService.filter_data(data, step.filters.all())
         
         return data
 
@@ -34,13 +37,16 @@ class TransferStepService(BaseService):
 
         data = FilterService.filter_data(data, step.filters)
 
-        if isinstance(data_location, ApiDataLocation):
+        if ApiDataLocationService.create_query({'name': data_location.name}).exists():
+            data_location = ApiDataLocationService.get({'name': data_location.name})
             responses = ApiDataLocationService.upload_data(data_location, data)
         
-        elif isinstance(data_location, DbDataLocation):
+        elif DbDataLocationService.create_query({'name': data_location.name}).exists():
+            data_location = DbDataLocationService.get({'name': data_location.name})
             responses = DbDataLocationService.upload_data(data_location, data)
         
         else:
+            data_location = FtpDataLocationService.get({'name': data_location.name})
             responses = FtpDataLocationService.upload_data(data_location, data)
 
         return responses
@@ -49,11 +55,12 @@ class TransferStepService(BaseService):
 class TransformStepService(BaseService):
     REPOSITORY_CLASS = TransformStepRepository
 
+    # TODO Validate
     @classmethod
-    def transform_data(cls, data: list[dict], step: TransformStep) -> None:
-        mappings = step.mappings
+    def transform_data(cls, data: list[dict], step: TransformStep) -> list[dict]:
+        mappings = step.mappings.all()
         keep_leftover_fields = step.keep_leftover_fields
-        conversions = step.conversions
+        conversions = step.conversions.all()
         mappings_first = step.conversions_after_mappings
         
         if mappings_first:

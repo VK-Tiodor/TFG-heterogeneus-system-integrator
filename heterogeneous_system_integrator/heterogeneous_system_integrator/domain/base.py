@@ -19,11 +19,11 @@ OPERATIONS = {
     OPERATOR_TYPE_EQ: operator.eq,
     OPERATOR_TYPE_GT: operator.gt,
     OPERATOR_TYPE_GTE: operator.ge,
-    OPERATOR_TYPE_IN: operator.contains,
+    OPERATOR_TYPE_IN: (lambda x, y: operator.contains(y, x)),
     OPERATOR_TYPE_LT: operator.lt,
     OPERATOR_TYPE_LTE: operator.le,
     OPERATOR_TYPE_NOT_EQ: (lambda x, y: operator.not_(operator.eq(x, y))),
-    OPERATOR_TYPE_NOT_IN: (lambda x, y: operator.not_(operator.contains(x, y))),
+    OPERATOR_TYPE_NOT_IN: (lambda x, y: operator.not_(operator.contains(y, x))),
 }
 
 

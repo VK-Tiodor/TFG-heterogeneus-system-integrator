@@ -9,12 +9,37 @@ from heterogeneous_system_integrator.domain.mapping import Mapping
 
 
 class TransferStep(Base):
-    data_location = models.ForeignKey(BaseDataLocation, on_delete=models.PROTECT, related_name='transfer_steps', help_text='Data location where the transfering data process is going to take place')
-    filters = models.ManyToManyField(Filter, related_name='transfer_steps', null=True, blank=True, help_text='Filter to select the data that is going to be transfered')
+    data_location = models.ForeignKey(
+        BaseDataLocation,
+        on_delete=models.PROTECT,
+        related_name='transfer_steps',
+        help_text='Data location where the transfering data process is going to take place'
+    )
+    filters = models.ManyToManyField(
+        Filter,
+        related_name='transfer_steps',
+        null=True,
+        blank=True,
+        help_text='Filter to select the data that is going to be transfered'
+    )
+
 
 class TransformStep(Base):
-    mappings = models.ManyToManyField(Mapping, related_name='transform_steps', help_text='Mappings to choose which data fields are going to be uploaded and from which origin')
+    mappings = models.ManyToManyField(
+        Mapping,
+        related_name='transform_steps',
+        help_text='Mappings to choose which data fields are going to be uploaded and from which origin'
+    )
     keep_leftover_fields = models.BooleanField(default=False, help_text='Behavior with the data fields that have not been mapped.')
-    conversions = models.ManyToManyField(Conversion, related_name='transform_steps', null=True, blank=True, help_text='Conversions to modify the field values that are going to be uploaded')
-    conversions_after_mappings = models.BooleanField(default=False, help_text='Conversions change values over the specified field names. This process can be done on the original fields or the mapped fields.')
+    conversions = models.ManyToManyField(
+        Conversion,
+        related_name='transform_steps',
+        null=True,
+        blank=True,
+        help_text='Conversions to modify the field values that are going to be uploaded'
+    )
+    conversions_after_mappings = models.BooleanField(
+        default=False,
+        help_text='Conversions change values over the specified field names. This process can be done on the original fields or the mapped fields.'
+    )
     

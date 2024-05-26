@@ -27,7 +27,7 @@ def execute_tasks(self, request, queryset):
         task_names += [str(task)]
 
     messages.add_message(
-        request, messages.INFO, f'Async tasks {_(get_text_list(task_names, "and"))} {"have" if len(task_names) > 1 else "has"} been queued for execution.'
+        request, messages.INFO, f'Async tasks {get_text_list(task_names, "and")} {"have" if len(task_names) > 1 else "has"} been queued for execution.'
     )
 
 

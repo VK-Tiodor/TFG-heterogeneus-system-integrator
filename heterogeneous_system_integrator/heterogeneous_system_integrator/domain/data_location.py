@@ -45,4 +45,9 @@ class FtpDataLocation(BaseDataLocation):
     path_to_files = models.CharField(
         help_text='Path to the folder where the transfering file process is going to take place. Separate field names using slashes (/)'
     )
-    filename_or_regex_pattern = models.CharField(null=True, blank=True, help_text='Filename or regular expression for multiple files from where to get data')
+    filename = models.CharField(null=True, blank=True, help_text='Filename from where to get or where to save the data')
+    regex_pattern = models.CharField(
+        null=True,
+        blank=True,
+        help_text='Regular expression to get data from multiple files. Only compatible with download Transfer Steps'
+    )

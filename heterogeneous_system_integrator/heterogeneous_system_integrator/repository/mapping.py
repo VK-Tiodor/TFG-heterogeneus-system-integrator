@@ -16,7 +16,7 @@ class MappingRepository(BaseRepository):
 
     @classmethod
     def _pre_save_model_operations(cls, model: Mapping):
-        cls._validate_fields(model.origin_field_name, model.constant_value)
+        cls._validate_fields(model)
         super()._pre_save_model_operations(model)
 
     @classmethod

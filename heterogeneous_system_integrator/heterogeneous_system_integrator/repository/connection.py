@@ -51,7 +51,7 @@ class ApiConnectionRepository(BaseConnectionRepository):
 
     @classmethod
     def _pre_save_model_operations(cls, model: ApiConnection):
-        cls._validate_fields(cls, model)
+        cls._validate_fields(model)
         super()._pre_save_model_operations(model)
 
     @classmethod

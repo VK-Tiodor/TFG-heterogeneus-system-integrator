@@ -3,6 +3,7 @@ from django.utils.text import slugify
 
 from heterogeneous_system_integrator.domain.base import Base
 
+
 class BaseRepository:
     MODEL_CLASS: Base = None
     

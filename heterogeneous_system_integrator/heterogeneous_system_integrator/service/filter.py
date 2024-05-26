@@ -1,3 +1,5 @@
+from json import loads
+
 from heterogeneous_system_integrator.domain.base import OPERATIONS
 from heterogeneous_system_integrator.domain.filter import Filter, FILTER_TYPE_KEEP
 from heterogeneous_system_integrator.repository.filter import FilterRepository
@@ -13,7 +15,7 @@ class FilterService(BaseService):
         for filter_ in filters:
             field_name = filter_.field_name
             operator = filter_.comparison_operator
-            comparison_value = filter_.comparison_value
+            comparison_value = loads(filter_.comparison_value)
             keep = (filter_.type == FILTER_TYPE_KEEP)
             
             for row in data:

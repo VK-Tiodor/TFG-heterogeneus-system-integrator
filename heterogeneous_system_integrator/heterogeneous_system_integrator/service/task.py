@@ -1,4 +1,3 @@
-from heterogeneous_system_integrator.domain.task import AsyncTask, PlannedTask
 from heterogeneous_system_integrator.repository.task import AsyncTaskRepository, PlannedTaskRepository, PeriodicTaskRepository
 from heterogeneous_system_integrator.service.base import BaseService
 from heterogeneous_system_integrator.service.subtask import SubtaskService

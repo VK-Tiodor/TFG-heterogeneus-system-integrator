@@ -1,5 +1,3 @@
-from itertools import zip_longest
-
 from heterogeneous_system_integrator.domain.subtask import Subtask
 from heterogeneous_system_integrator.repository.subtask import SubtaskRepository
 from heterogeneous_system_integrator.service.base import BaseService
@@ -14,7 +12,7 @@ class SubtaskService(BaseService):
         data_lists = []
         try:
             for step in subtask.download_steps.all():
-                data_lists += TransferStepService.download_data(step)
+                data_lists += [TransferStepService.download_data(step)]
 
             data = cls._merge_data(subtask.merge_field_name, data_lists)
             data = TransformStepService.transform_data(data, subtask.transform_step)
@@ -32,6 +30,9 @@ class SubtaskService(BaseService):
     
     @classmethod
     def _merge_data(cls, merge_field_name: str, data_lists: list[list[dict]]):
+        if not merge_field_name:
+            return list(*data_lists)
+
         data_lists = cls._sort_data_lists_for_quick_merge(merge_field_name, data_lists)
         merged_data = data_lists.pop()
         
@@ -44,7 +45,7 @@ class SubtaskService(BaseService):
     def _sort_data_lists_for_quick_merge(cls, merge_field_name: str, data_lists: list[list[dict]]):
         data_lists = sorted(data_lists, key=lambda x: len(x))
         try:
-            data_lists = [sorted(data, lambda x: x[merge_field_name]) for data in data_lists]
+            data_lists = [sorted(data, key=lambda x: x[merge_field_name]) for data in data_lists]
         
         except KeyError as ex:
             raise TypeError(f'Merge field name from subtask config is incorrect. There is no such field as {merge_field_name} in the data.')

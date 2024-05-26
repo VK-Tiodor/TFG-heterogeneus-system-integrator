@@ -27,7 +27,7 @@ class ApiConnectionService(BaseService):
         if endpoint.startswith('/'):
             endpoint = endpoint[1:]
 
-        return f'{connection}/{endpoint}'
+        return f'{base_url}/{endpoint}'
 
     @classmethod
     def download_data(cls, url: str, headers: dict) -> list[dict] | dict:
@@ -39,7 +39,7 @@ class ApiConnectionService(BaseService):
             except Exception as ex:
                 raise TypeError(f'Data download process failed. Reason: {str(ex)}')
         
-        data = response.json
+        data = response.json()
         return data
 
     @classmethod
