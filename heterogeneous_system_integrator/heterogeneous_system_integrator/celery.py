@@ -3,8 +3,6 @@ import os
 from celery import Celery
 
 from heterogeneous_system_integrator import settings
-from heterogeneous_system_integrator.domain.task import AsyncTask
-from heterogeneous_system_integrator.user_interface.api.serializer.task import AsyncTaskSerializer
 from heterogeneous_system_integrator.service.task import AsyncTaskService, PlannedTaskService, PeriodicTaskService
 
 
@@ -21,11 +19,6 @@ app.config_from_object(settings.__name__)
 
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
-
-
-def serialize_task_data(task: AsyncTask) -> dict:
-    serializer = AsyncTaskSerializer(task)
-    return serializer.data
 
 
 @app.task(bind=True, name=settings.CELERY_ASYNC_TASK_NAME)

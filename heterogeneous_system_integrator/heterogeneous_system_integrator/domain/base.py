@@ -3,7 +3,6 @@ import operator
 from django.db import models
 
 
-
 OPERATOR_TYPES = {
     (OPERATOR_TYPE_EQ := '=='): 'Equal',
     (OPERATOR_TYPE_GT := '>'): 'Greater than',
@@ -59,4 +58,3 @@ class BaseConnection(models.Model):
 
     class Meta:
         abstract = True
-        

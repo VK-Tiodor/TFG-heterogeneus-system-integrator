@@ -106,6 +106,11 @@ class BaseRepository:
         return model
 
     @classmethod
+    def create_model(cls, **field_data) -> Base:
+        model = cls.MODEL_CLASS(**field_data)
+        return cls.save_model(model)
+
+    @classmethod
     def save_model_with_relations(cls, model: Base, relations: dict) -> Base:
         cls._pre_save_model_operations(model)
         

@@ -40,9 +40,13 @@ class BaseService:
         return cls.REPOSITORY_CLASS.select(columns, query)
     
     @classmethod
-    def save_model(cls, model: Base) -> None:
+    def save_model(cls, model: Base) -> Base:
         return cls.REPOSITORY_CLASS.save_model(model)
-    
+
+    @classmethod
+    def create_model(cls, **field_data) -> Base:
+        return cls.REPOSITORY_CLASS.create_model(**field_data)
+
     @classmethod
     def save_model_with_relations(cls, model: Base, relations: dict):
         return cls.REPOSITORY_CLASS.save_model_with_relations(model, relations)
