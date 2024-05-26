@@ -1,6 +1,12 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,django
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,django
 
+### Docker ###
+
+Dockerfile
+compose.yaml
+ftp_dev_file_system
+
 ### Django ###
 *.log
 *.pot
@@ -133,6 +139,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.example
 .venv
 env/
 venv/

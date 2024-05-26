@@ -43,12 +43,12 @@ services:
   broker:
     image: rabbitmq:3.12.13
     restart: unless-stopped
-    volumes: 
-      - volume_broker:/var/lib/rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-default_user}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-default_password}
-      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST:-default_vhost} 
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST:-default_vhost}
+    volumes:
+      - volume_broker:/var/lib/rabbitmq
     networks:
       - default
     ports:
@@ -58,18 +58,31 @@ services:
   db:
     image: postgres:14.11-bullseye
     restart: unless-stopped
-    volumes: 
-      - volume_db:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-default_name}
       - POSTGRES_USER=${POSTGRES_USER:-default_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-default_password}
       - POSGTRES_HOST=${POSGTRES_HOST:-db}
+    volumes:
+      - volume_db:/var/lib/postgresql/data
     networks:
       - default
     ports:
       - 5432:5432
-  
+
+  dev-ftp:
+    image: delfer/alpine-ftp-server
+    restart: unless-stopped
+    environment:
+      - USERS=dev_user|Dev-User1234.|/home/dev_user/
+      - ADDRESS=ftp.dev.net
+    volumes:
+      - ./ftp_dev_file_system:/home/dev_user/
+    networks:
+      - default
+    ports:
+      - 21:21
+      - 21000-21010:21000-21010
 
 networks:
   default:
