@@ -41,10 +41,12 @@ class BaseAdminViewset(_Base, ModelAdmin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.list_display = [
+        model_fields = [
             field.name for field in self.model._meta.fields
             if field is not ManyToManyField
         ]
+        self.list_display = model_fields
+        self.list_display_links = model_fields
 
     def get_search_results(self, request: HttpRequest, queryset: QuerySet, search_term: str) -> tuple[QuerySet, bool]:
         duplicates = False

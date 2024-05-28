@@ -18,7 +18,7 @@ class MappingService(BaseService):
             mappings_with_fields = sorted(mappings_with_fields, key=(lambda x: x.origin_field_name.count('.')))
 
             for mapping in mappings_with_fields:
-                if not row.get(mapping.origin_field_name):
+                if not row.get(mapping.origin_field_name.split('.')[0]):
                     raise TypeError(f'Field name from Mapping {str(mapping)} config is incorrect. There is no such field as {mapping.origin_field_name} in the data.')
                 
                 origin_value = cls._get_value_from_row_field(old_row, mapping.origin_field_name)

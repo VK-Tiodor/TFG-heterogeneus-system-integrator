@@ -6,6 +6,7 @@ from heterogeneous_system_integrator.service.conversion import ConversionService
 from heterogeneous_system_integrator.service.data_location import ApiDataLocationService, DbDataLocationService, FtpDataLocationService
 from heterogeneous_system_integrator.service.filter import FilterService
 from heterogeneous_system_integrator.service.mapping import MappingService
+from heterogeneous_system_integrator.utils.write import CsvWriter
 
 
 class TransferStepService(BaseService):
@@ -35,7 +36,7 @@ class TransferStepService(BaseService):
     def upload_data(cls, data: list[dict], step: TransferStep) -> list[str]:
         data_location = step.data_location
 
-        data = FilterService.filter_data(data, step.filters)
+        data = FilterService.filter_data(data, step.filters.all())
 
         if ApiDataLocationService.create_query({'name': data_location.name}).exists():
             data_location = ApiDataLocationService.get({'name': data_location.name})
@@ -47,6 +48,7 @@ class TransferStepService(BaseService):
         
         else:
             data_location = FtpDataLocationService.get({'name': data_location.name})
+            #TODO Write fichero
             responses = FtpDataLocationService.upload_data(data_location, data)
 
         return responses
