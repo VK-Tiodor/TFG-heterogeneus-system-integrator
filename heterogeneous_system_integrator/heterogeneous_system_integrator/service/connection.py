@@ -1,10 +1,18 @@
 from base64 import b64encode
+from datetime import datetime
+from io import BufferedReader, BufferedWriter
+from ftplib import FTP
 from json import dumps
+import os
 
 import requests
 
-from heterogeneous_system_integrator.domain.connection import ApiConnection, DbConnection, FtpConnection, API_AUTH_TYPE_BASIC, API_AUTH_TYPE_KEY, API_TYPE_REST
-from heterogeneous_system_integrator.repository.connection import ApiConnectionRepository, DbConnectionRepository, FtpConnectionRepository
+from heterogeneous_system_integrator.domain.connection import (
+    BaseConnection, ApiConnection, DbConnection, FtpConnection, API_AUTH_TYPE_BASIC, API_AUTH_TYPE_KEY, API_TYPE_REST
+)
+from heterogeneous_system_integrator.repository.connection import (
+    BaseConnectionRepository, ApiConnectionRepository, DbConnectionRepository, FtpConnectionRepository
+)
 from heterogeneous_system_integrator.service.base import BaseService
 
 
@@ -14,7 +22,15 @@ def batch_processor(data: list[dict]):
         yield batch
 
 
-class ApiConnectionService(BaseService):
+class BaseConnectionService(BaseService):
+    REPOSITORY_CLASS: BaseConnectionRepository = None
+
+    @classmethod
+    def get_password(cls, model: BaseConnection):
+        return cls.REPOSITORY_CLASS.get_password(model)
+
+
+class ApiConnectionService(BaseConnectionService):
     REPOSITORY_CLASS = ApiConnectionRepository
 
     @classmethod
@@ -115,7 +131,7 @@ class ApiConnectionService(BaseService):
 
 
 # TODO
-class DbConnectionService(BaseService):
+class DbConnectionService(BaseConnectionService):
     REPOSITORY_CLASS = DbConnectionRepository
 
     @classmethod
@@ -124,9 +140,63 @@ class DbConnectionService(BaseService):
 
 
 # TODO
-class FtpConnectionService(BaseService):
+class FtpConnectionService(BaseConnectionService):
     REPOSITORY_CLASS = FtpConnectionRepository
+    process_logs = []
 
     @classmethod
     def download_data(cls, connection: FtpConnection, *args, **kwargs):
         pass
+
+    @classmethod
+    def _get_ftp_filename(cls, file: BufferedReader) -> str:
+        timestamp = datetime.now().strftime('%d%m%Y%H%M%S%f')
+        filename, extension = os.path.basename(file.name).split('.')
+        return f'{filename}-{timestamp}.{extension}'
+
+    @classmethod
+    def transfer_log(cls, data: bytes):
+        cls.process_logs += [f'Transferred {round(len(data)/1024, 2)} KB']
+
+    @classmethod
+    def _go_to_directory(cls, connection: FTP, path: list[str]):
+        for directory in path:
+            if directory not in connection.nlst():
+                connection.mkd(directory)
+            connection.cwd(directory)
+
+    @classmethod
+    def transfer_through_default_connection(cls, host: str, user: str, passwd: str, path: list[str], file: BufferedReader):
+        with FTP(host, user, passwd) as connection:
+            cls._go_to_directory(connection, path)
+            connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls.transfer_log)
+
+    @classmethod
+    def transfer_through_custom_port_connection(cls, host, user, passwd, port, path: list[str], file: BufferedReader):
+        connection = FTP()
+        connection.connect(host, port)
+        connection.login(user, passwd)
+        cls._go_to_directory(connection, path)
+        connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls.transfer_log)
+        if connection.sock is not None:
+            connection.quit()
+
+    @classmethod
+    def upload_data(cls, connection: FtpConnection, path: list[str], file: BufferedReader) -> list[str]:
+        host = connection.hostname
+        user = connection.username
+        passwd = connection.password
+        port = connection.port
+        cls.process_logs += [f'Transferring file {os.path.basename(file.name)} process STARTED']
+
+        if not port:
+            cls.transfer_through_default_connection(host, user, passwd, path, file)
+
+        else:
+            cls.transfer_through_custom_port_connection(host, user, passwd, port, path, file)
+
+        cls.process_logs += [f'Transferring file {os.path.basename(file.name)} process FINISHED']
+        response = cls.process_logs.copy()
+        cls.process_logs = []
+        return response
+

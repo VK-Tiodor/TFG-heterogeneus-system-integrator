@@ -14,22 +14,29 @@ class BaseConnectionRepository(BaseRepository):
 
     @classmethod
     def _encrypt_password(cls, password: str):
-        return cls.ENCRYPTOR.encrypt(password.encode())
+        return cls.ENCRYPTOR.encrypt(password.encode()).decode()
     
     @classmethod
     def _decrypt_password(cls, password: str):
-        return cls.ENCRYPTOR.decrypt(password)
-    
+        return cls.ENCRYPTOR.decrypt(password).decode() if password else ''
+
+    @classmethod
+    def _passwd_has_to_be_encrypted(cls, model: BaseConnection):
+        return (
+            (not model.pk and model.password)
+            or (model.pk and model.password and model.password != cls._decrypt_password(cls.get({'pk': model.pk}).password))
+        )
+
     @classmethod
     def _pre_save_model_operations(cls, model: BaseConnection):
-        if model.password:
+        if cls._passwd_has_to_be_encrypted(model):
             model.password = cls._encrypt_password(model.password)
         super()._pre_save_model_operations(model)
 
     @classmethod
     def _pre_save_multiple_models_operations(cls, models: list[BaseConnection], fields: list[str] = None):
         for model in models:
-            if model.password:
+            if cls._passwd_has_to_be_encrypted(model):
                 model.password = cls._encrypt_password(model.password)
         super()._pre_save_multiple_models_operations(models, fields)
 

@@ -42,12 +42,12 @@ class FtpDataLocation(BaseDataLocation):
         related_name='data_locations',
         help_text='Connection where the transfering data process is going to take place'
     )
-    path_to_files = models.CharField(
-        help_text='Path to the folder where the transfering file process is going to take place. Separate field names using slashes (/)'
+    directory_path = models.CharField(
+        help_text='Path to the directory where the transfering file process is going to take place. Separate field names using slashes (/)'
     )
     filename = models.CharField(null=True, blank=True, help_text='Filename from where to get or where to save the data')
     regex_pattern = models.CharField(
         null=True,
         blank=True,
-        help_text='Regular expression to get data from multiple files. Only compatible with download Transfer Steps'
+        help_text='Regular expression to get data from multiple files'
     )

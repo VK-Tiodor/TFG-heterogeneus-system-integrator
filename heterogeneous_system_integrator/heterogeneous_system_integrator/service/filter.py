@@ -11,6 +11,9 @@ class FilterService(BaseService):
 
     @classmethod
     def filter_data(cls, data: list[dict], filters: list[Filter]) -> list[dict]:        
+        if not filters:
+            return data
+
         filtered_data = []
         for filter_ in filters:
             field_name = filter_.field_name

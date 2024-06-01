@@ -15,10 +15,17 @@ class CsvWriter:
         if os.path.exists(self.file_path) and self.delete_on_exit:
             os.remove(self.file_path)
 
+    @classmethod
+    def _get_column_names_from_data(cls, data: list[dict]) -> set:
+        column_names = set()
+        for row in data:
+            column_names = column_names.union(set(row.keys()))
+        return column_names
+
     def write_file(self, data: list[dict]):
         with open(self.file_path, 'w') as file:
-            #TODO refinar
-            columns = list(data[0].keys())
-            writer = DictWriter(file, fieldnames=columns)
+            writer = DictWriter(file, fieldnames=self._get_column_names_from_data(data))
             writer.writeheader()
             writer.writerows(data)
+
+        return open(self.file_path, 'rb')

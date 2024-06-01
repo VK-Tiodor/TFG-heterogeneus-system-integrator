@@ -2,6 +2,7 @@ from heterogeneous_system_integrator.domain.data_location import ApiDataLocation
 from heterogeneous_system_integrator.repository.data_location import ApiDataLocationRepository, DbDataLocationRepository, FtpDataLocationRepository
 from heterogeneous_system_integrator.service.base import BaseService
 from heterogeneous_system_integrator.service.connection import ApiConnectionService, DbConnectionService, FtpConnectionService
+from heterogeneous_system_integrator.utils.write import CsvWriter
 
 
 class ApiDataLocationService(BaseService):
@@ -61,7 +62,14 @@ class FtpDataLocationService(BaseService):
     @classmethod
     def download_data(cls, data_location: FtpDataLocation) -> list[dict]:
         pass
-    
+
     @classmethod
-    def upload_data(cls, data_location: FtpDataLocation, data: list[dict]) -> None:
-        pass
+    def upload_data(cls, data_location: FtpDataLocation, data: list[dict]) -> list[str]:
+        connection = data_location.connection
+        path = data_location.directory_path.strip('/').split('/')
+        filename = data_location.filename
+        with CsvWriter(filename, delete_on_exit=True) as writer:
+            file = writer.write_file(data)
+            responses = FtpConnectionService.upload_data(connection, path, file)
+        return responses
+
