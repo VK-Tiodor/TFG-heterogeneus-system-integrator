@@ -22,9 +22,8 @@ class SubtaskService(BaseService):
             return f'Exit code 1 - {str(ex)}.'
         
         result_msg = ''
-        for i, response in enumerate(responses):
-            msg_separator = '*' * 32 + ' ' * 4 + f'BATCH {i} RESULTS' + ' ' * 4 + '*' * 32
-            result_msg = f'{result_msg}{msg_separator}\n{response}\n'
+        for i, response in enumerate(responses, start=1):
+            result_msg = f'{result_msg}{i} > {response}\n'
         
         return result_msg
     

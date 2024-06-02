@@ -75,7 +75,6 @@ services:
     restart: unless-stopped
     environment:
       - USERS=dev_user|Dev-User1234.|/home/dev_user/
-      - ADDRESS=ftp.dev.net
     volumes:
       - ./ftp_dev_file_system:/home/dev_user/
     networks:

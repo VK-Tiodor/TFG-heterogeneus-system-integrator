@@ -1,9 +1,10 @@
 from base64 import b64encode
 from datetime import datetime
-from io import BufferedReader, BufferedWriter
 from ftplib import FTP
+from io import BufferedReader, BufferedWriter
 from json import dumps
 import os
+import time
 
 import requests
 
@@ -143,6 +144,7 @@ class DbConnectionService(BaseConnectionService):
 class FtpConnectionService(BaseConnectionService):
     REPOSITORY_CLASS = FtpConnectionRepository
     process_logs = []
+    transfer_init_time = 0
 
     @classmethod
     def download_data(cls, connection: FtpConnection, *args, **kwargs):
@@ -155,29 +157,33 @@ class FtpConnectionService(BaseConnectionService):
         return f'{filename}-{timestamp}.{extension}'
 
     @classmethod
-    def transfer_log(cls, data: bytes):
-        cls.process_logs += [f'Transferred {round(len(data)/1024, 2)} KB']
+    def _transfer_log(cls, data: bytes):
+        transfer_duration = round((time.time() - cls.transfer_init_time) * 1000, 2)
+        cls.process_logs += [f'Transferred {round(len(data)/1024, 2)} KB in {transfer_duration}ms']
+        cls.transfer_init_time = time.time()
 
     @classmethod
     def _go_to_directory(cls, connection: FTP, path: list[str]):
         for directory in path:
             if directory not in connection.nlst():
                 connection.mkd(directory)
+
             connection.cwd(directory)
 
     @classmethod
-    def transfer_through_default_connection(cls, host: str, user: str, passwd: str, path: list[str], file: BufferedReader):
+    def _transfer_through_default_connection(cls, host: str, user: str, passwd: str, path: list[str], file: BufferedReader):
         with FTP(host, user, passwd) as connection:
             cls._go_to_directory(connection, path)
-            connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls.transfer_log)
+            connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls._transfer_log)
 
     @classmethod
-    def transfer_through_custom_port_connection(cls, host, user, passwd, port, path: list[str], file: BufferedReader):
+    def _transfer_through_custom_port_connection(cls, host, user, passwd, port, path: list[str], file: BufferedReader):
         connection = FTP()
         connection.connect(host, port)
         connection.login(user, passwd)
         cls._go_to_directory(connection, path)
-        connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls.transfer_log)
+        connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls._transfer_log)
+
         if connection.sock is not None:
             connection.quit()
 
@@ -185,18 +191,18 @@ class FtpConnectionService(BaseConnectionService):
     def upload_data(cls, connection: FtpConnection, path: list[str], file: BufferedReader) -> list[str]:
         host = connection.hostname
         user = connection.username
-        passwd = connection.password
+        passwd = cls.get_password(connection)
         port = connection.port
-        cls.process_logs += [f'Transferring file {os.path.basename(file.name)} process STARTED']
+        cls.process_logs = [f'Transferring file {os.path.basename(file.name)} process STARTED']
+        cls.transfer_init_time = time.time()
 
         if not port:
-            cls.transfer_through_default_connection(host, user, passwd, path, file)
+            cls._transfer_through_default_connection(host, user, passwd, path, file)
 
         else:
-            cls.transfer_through_custom_port_connection(host, user, passwd, port, path, file)
+            cls._transfer_through_custom_port_connection(host, user, passwd, port, path, file)
 
         cls.process_logs += [f'Transferring file {os.path.basename(file.name)} process FINISHED']
         response = cls.process_logs.copy()
-        cls.process_logs = []
         return response
 

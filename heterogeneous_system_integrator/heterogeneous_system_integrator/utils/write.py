@@ -1,4 +1,5 @@
 from csv import DictWriter
+from io import BufferedWriter
 import os
 
 
@@ -7,11 +8,15 @@ class CsvWriter:
     def __init__(self, file_name, delete_on_exit: bool = False):
         self.file_path = os.path.join(os.path.dirname(__file__), 'temp_files', file_name)
         self.delete_on_exit = delete_on_exit
+        self.written_file = None
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.written_file:
+            self.written_file.close()
+
         if os.path.exists(self.file_path) and self.delete_on_exit:
             os.remove(self.file_path)
 
@@ -28,4 +33,5 @@ class CsvWriter:
             writer.writeheader()
             writer.writerows(data)
 
-        return open(self.file_path, 'rb')
+        self.written_file = open(self.file_path, 'rb')
+        return self.written_file

@@ -24,7 +24,7 @@ class BaseConnectionRepository(BaseRepository):
     def _passwd_has_to_be_encrypted(cls, model: BaseConnection):
         return (
             (not model.pk and model.password)
-            or (model.pk and model.password and model.password != cls._decrypt_password(cls.get({'pk': model.pk}).password))
+            or (model.pk and model.password and model.password != cls.get({'pk': model.pk}).password)
         )
 
     @classmethod
