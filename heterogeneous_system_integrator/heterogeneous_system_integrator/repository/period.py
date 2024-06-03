@@ -4,6 +4,7 @@ from django_celery_beat.models import CrontabSchedule
 
 from heterogeneous_system_integrator.domain.period import Period
 from heterogeneous_system_integrator.repository.base import BaseRepository
+from heterogeneous_system_integrator.settings import TIME_ZONE
 
 
 class PeriodRepository(BaseRepository):
@@ -17,7 +18,14 @@ class PeriodRepository(BaseRepository):
     @classmethod
     def _pre_save_model_operations(cls, model: Period):
         cls._validate_fields(model)
-        crontab = CrontabSchedule(model.minute, model.hour, model.day_of_week, model.day_of_month, model.month_of_year)
+        crontab = CrontabSchedule(
+            minute=model.minute,
+            hour=model.hour,
+            day_of_week=model.day_of_week,
+            day_of_month=model.day_of_month,
+            month_of_year=model.month_of_year,
+            timezone=TIME_ZONE
+        )
         crontab.save()
         model.celery_crontab = crontab
         super()._pre_save_model_operations(model)

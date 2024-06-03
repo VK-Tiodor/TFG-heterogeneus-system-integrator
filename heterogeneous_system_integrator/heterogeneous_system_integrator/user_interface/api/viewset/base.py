@@ -57,9 +57,6 @@ class BaseAdminViewset(_Base, ModelAdmin):
             return self.SERVICE_CLASS.create_query(filters={'name__icontains': search_term}, order_by=['name']), duplicates
 
     def save_model(self, request: HttpRequest, obj: Base, form: Form, change: bool) -> None:
-        if change:
-            return self.SERVICE_CLASS.save_model(obj)
-
         relations = {field_name: value for field_name, value in form.cleaned_data.items() if isinstance(value, QuerySet)}
         if not relations:
             return self.SERVICE_CLASS.save_model(obj)

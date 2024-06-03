@@ -55,7 +55,6 @@ class TransferStepService(BaseService):
 class TransformStepService(BaseService):
     REPOSITORY_CLASS = TransformStepRepository
 
-    # TODO Validate
     @classmethod
     def transform_data(cls, data: list[dict], step: TransformStep) -> list[dict]:
         mappings = step.mappings.all()

@@ -104,4 +104,10 @@ class PeriodicTaskRepository(_BaseScheduledTaskRepository):
 
     @classmethod
     def _get_scheduled_task_fields(cls, model: PeriodicTask):
-        return dict(name=model.name, task=CELERY_PERIODIC_TASK_NAME, crontab=model.period.celery_crontab, kwargs={"task": model}, expires=cls._get_datetime_from_field(model.stop_at))
+        return dict(
+            name=model.name,
+            task=CELERY_PERIODIC_TASK_NAME,
+            crontab=model.period.celery_crontab,
+            kwargs={"task": model},
+            expires=cls._get_datetime_from_field(model.stop_at)
+        )

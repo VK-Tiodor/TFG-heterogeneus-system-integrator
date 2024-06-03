@@ -35,3 +35,19 @@ class CsvWriter:
 
         self.written_file = open(self.file_path, 'rb')
         return self.written_file
+
+
+class ObjectWriter:
+
+    @classmethod
+    def set_field(cls, value: str, row: dict, field_name: str) -> dict:
+        field_names = field_name.split('.')
+        inner_fields = aux = {}
+
+        for field in field_names[:-1]:
+            aux[field] = {}
+            aux = aux[field]
+
+        aux[field_names[-1]] = value
+        row.update(inner_fields)
+        return row

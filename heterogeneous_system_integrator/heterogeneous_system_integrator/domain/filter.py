@@ -8,5 +8,6 @@ FILTER_TYPE = {
     (FILTER_TYPE_DISCARD := 'discard'): 'Discard'
 }
 
+
 class Filter(Base, BaseComparator):
     type = models.CharField(choices=FILTER_TYPE.items(), help_text='Filter behaviour with data when conditions are met')
