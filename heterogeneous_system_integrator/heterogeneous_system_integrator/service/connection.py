@@ -2,10 +2,10 @@ from base64 import b64encode
 from datetime import datetime
 from ftplib import FTP
 from io import BufferedReader, BufferedWriter
-from json import dumps
+from time import time
 import os
-import time
 
+from celery import states
 import requests
 
 from heterogeneous_system_integrator.domain.connection import (
@@ -47,34 +47,43 @@ class ApiConnectionService(BaseConnectionService):
         return f'{base_url}/{endpoint}'
 
     @classmethod
-    def download_data(cls, url: str, headers: dict) -> list[dict] | dict:
+    def download_data(cls, url: str, headers: dict) -> tuple[list[dict] | dict, dict]:
+        data = []
+        exec_data = {'status': '', 'duration': 0, 'errors': 0, 'logs': []}
+        init_time = time()
         response = requests.get(url=url, headers=headers)
-        if not response.ok:
-            try:
-                response.raise_for_status()
-            
-            except Exception as ex:
-                raise TypeError(f'Data download process failed. Reason: {str(ex)}')
-        
-        data = response.json()
-        return data
+        try:
+            response.raise_for_status()
+        except Exception as ex:
+            exec_data['errors'] = 1
+            exec_time = round((time() - init_time) * 1000, 2)
+            exec_data['logs'] = [f'{exec_time}ms > {str(ex)}']
+            exec_data['status'] = states.FAILURE
+        else:
+            data = response.json()
+            exec_data['status'] = states.SUCCESS
+
+        exec_time = round((time() - init_time) * 1000, 2)
+        exec_data['duration'] = exec_time
+        return data, exec_data
 
     @classmethod
-    def upload_data(cls, url: str, headers: dict, data: list[dict]) -> list[str]:
-        responses = []
-        for batch in batch_processor(data):
+    def upload_data(cls, url: str, headers: dict, data: list[dict]) -> dict:
+        exec_data = {'status': '', 'duration': 0, 'errors': 0, 'logs': []}
+        init_time = time()
+        for i, batch in enumerate(batch_processor(data), start=1):
             response = requests.post(url=url, headers=headers, data=data)
+            try:
+                response.raise_for_status()
+            except Exception as ex:
+                exec_data['errors'] += 1
+                exec_time = round((time() - init_time) * 1000, 2)
+                exec_data['logs'] += [f'{exec_time}ms > {str(ex)}']
 
-            if not response.ok:
-                try:
-                    response.raise_for_status()
-                
-                except Exception as ex:
-                    responses += [f'Data upload process failed. Reason: {str(ex)}']
-                
-            responses += [dumps(response.json(), indent=2)]
-        
-        return responses
+        exec_data['status'] = states.SUCCESS if not exec_data['errors'] else states.FAILURE
+        exec_time = round((time() - init_time) * 1000, 2)
+        exec_data['duration'] = exec_time
+        return exec_data
         
     @classmethod
     def build_headers(cls, connection: ApiConnection) -> dict:
@@ -136,18 +145,16 @@ class DbConnectionService(BaseConnectionService):
     REPOSITORY_CLASS = DbConnectionRepository
 
     @classmethod
-    def download_data(cls, connection: DbConnection, *args, **kwargs):
+    def download_data(cls, connection: DbConnection, *args, **kwargs) -> tuple[list[dict] | dict, dict]:
         pass
 
 
 # TODO
 class FtpConnectionService(BaseConnectionService):
     REPOSITORY_CLASS = FtpConnectionRepository
-    process_logs = []
-    transfer_init_time = 0
 
     @classmethod
-    def download_data(cls, connection: FtpConnection, *args, **kwargs):
+    def download_data(cls, connection: FtpConnection, *args, **kwargs) -> tuple[list[dict] | dict, dict]:
         pass
 
     @classmethod
@@ -155,12 +162,6 @@ class FtpConnectionService(BaseConnectionService):
         timestamp = datetime.now().strftime('%d%m%Y%H%M%S%f')
         filename, extension = os.path.basename(file.name).split('.')
         return f'{filename}-{timestamp}.{extension}'
-
-    @classmethod
-    def _transfer_log(cls, data: bytes):
-        transfer_duration = round((time.time() - cls.transfer_init_time) * 1000, 2)
-        cls.process_logs += [f'Transferred {round(len(data)/1024, 2)} KB in {transfer_duration}ms']
-        cls.transfer_init_time = time.time()
 
     @classmethod
     def _go_to_directory(cls, connection: FTP, path: list[str]):
@@ -174,7 +175,7 @@ class FtpConnectionService(BaseConnectionService):
     def _transfer_through_default_connection(cls, host: str, user: str, passwd: str, path: list[str], file: BufferedReader):
         with FTP(host, user, passwd) as connection:
             cls._go_to_directory(connection, path)
-            connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls._transfer_log)
+            connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file)
 
     @classmethod
     def _transfer_through_custom_port_connection(cls, host, user, passwd, port, path: list[str], file: BufferedReader):
@@ -182,27 +183,32 @@ class FtpConnectionService(BaseConnectionService):
         connection.connect(host, port)
         connection.login(user, passwd)
         cls._go_to_directory(connection, path)
-        connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file, callback=cls._transfer_log)
+        connection.storbinary(f'STOR {cls._get_ftp_filename(file)}', file)
 
         if connection.sock is not None:
             connection.quit()
 
     @classmethod
-    def upload_data(cls, connection: FtpConnection, path: list[str], file: BufferedReader) -> list[str]:
+    def upload_data(cls, connection: FtpConnection, path: list[str], file: BufferedReader) -> dict:
         host = connection.hostname
         user = connection.username
         passwd = cls.get_password(connection)
         port = connection.port
-        cls.process_logs = [f'Transferring file {os.path.basename(file.name)} process STARTED']
-        cls.transfer_init_time = time.time()
-
-        if not port:
-            cls._transfer_through_default_connection(host, user, passwd, path, file)
-
+        exec_data = {'status': '', 'duration': 0, 'errors': 0, 'logs': []}
+        init_time = time()
+        try:
+            if not port:
+                cls._transfer_through_default_connection(host, user, passwd, path, file)
+            else:
+                cls._transfer_through_custom_port_connection(host, user, passwd, port, path, file)
+        except Exception as ex:
+            exec_data['errors'] = 1
+            exec_time = round((time() - init_time) * 1000, 2)
+            exec_data['logs'] = [f'{exec_time}ms > {str(ex)}']
+            exec_data['status'] = states.FAILURE
         else:
-            cls._transfer_through_custom_port_connection(host, user, passwd, port, path, file)
+            exec_data['status'] = states.SUCCESS
 
-        cls.process_logs += [f'Transferring file {os.path.basename(file.name)} process FINISHED']
-        response = cls.process_logs.copy()
-        return response
-
+        exec_time = round((time() - init_time) * 1000, 2)
+        exec_data['duration'] = exec_time
+        return exec_data

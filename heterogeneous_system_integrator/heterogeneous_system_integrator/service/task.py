@@ -1,3 +1,5 @@
+from celery import states
+
 from heterogeneous_system_integrator.repository.task import AsyncTaskRepository, PlannedTaskRepository, PeriodicTaskRepository
 from heterogeneous_system_integrator.service.base import BaseService
 from heterogeneous_system_integrator.service.subtask import SubtaskService
@@ -6,15 +8,16 @@ from heterogeneous_system_integrator.service.subtask import SubtaskService
 class _BaseTaskService(BaseService):
     
     @classmethod
-    def run(cls, id, name, slug, created_at, updated_at, subtasks, **kwargs):
-        task_result = '%' + (' ' * 35) + f'TASK {name} RESULTS' + (' ' * 35) + '%'
-        task_result = '\n' + ('%' * len(task_result)) + f'\n{task_result}\n' + ('%' * len(task_result)) + '\n\n'
+    def run(cls, id, name, slug, created_at, updated_at, subtasks, **kwargs) -> dict:
+        result = {'task': name, 'status': '', 'duration': 0, 'errors': 0, 'subtasks': []}
         for subtask in SubtaskService.create_query({'pk__in': subtasks}):
             subtask_result = SubtaskService.run(subtask)
-            subtask_msg_separator = '|' + (' ' * 35) + f'SUBTASK {str(subtask)} LOGS' + ' ' * 35 + '|'
-            subtask_msg_separator = ('-' * len(subtask_msg_separator)) + f'\n{subtask_msg_separator}\n' + ('-' * len(subtask_msg_separator)) + '\n\n'
-            task_result = f'{task_result}{subtask_msg_separator}{subtask_result}\n'
-        return task_result
+            result['subtasks'] += [subtask_result]
+            result['errors'] += subtask_result['errors']
+            result['duration'] += subtask_result['duration']
+
+        result['status'] = states.SUCCESS if not subtask_result['errors'] else states.FAILURE
+        return result
 
 
 class AsyncTaskService(_BaseTaskService):

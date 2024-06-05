@@ -1,3 +1,7 @@
+from time import time
+
+from celery import states
+
 from heterogeneous_system_integrator.domain.subtask import Subtask
 from heterogeneous_system_integrator.repository.subtask import SubtaskRepository
 from heterogeneous_system_integrator.service.base import BaseService
@@ -8,37 +12,63 @@ class SubtaskService(BaseService):
     REPOSITORY_CLASS = SubtaskRepository
 
     @classmethod
-    def run(cls, subtask: Subtask):
-        data_lists = []
-        try:
-            for step in subtask.download_steps.all():
-                data_lists += [TransferStepService.download_data(step)]
+    def _update_exec_data(cls, subtask_exec_data, step_exec_data):
+        subtask_exec_data['steps'] += [step_exec_data]
+        subtask_exec_data['errors'] += step_exec_data['errors']
+        subtask_exec_data['duration'] += step_exec_data['duration']
+        subtask_exec_data['status'] = states.SUCCESS if not step_exec_data['errors'] else states.FAILURE
 
-            data = cls._merge_data(subtask.merge_field_name, data_lists)
-            data = TransformStepService.transform_data(data, subtask.transform_step)
-            responses = TransferStepService.upload_data(data, subtask.upload_step)
-        
-        except Exception as ex:
-            return f'Exit code 1 - {str(ex)}.'
-        
-        result_msg = ''
-        for i, response in enumerate(responses, start=1):
-            result_msg = f'{result_msg}{i} > {response}\n'
-        
-        return result_msg
+    @classmethod
+    def run(cls, subtask: Subtask) -> dict:
+        data_lists = []
+        results = {'subtask': str(subtask), 'status': '', 'duration': 0, 'errors': 0, 'steps': []}
+        for step in subtask.download_steps.all():
+            data, exec_data = TransferStepService.download_data(step)
+            data_lists += [data]
+            cls._update_exec_data(results, exec_data)
+
+        merge_field_name = subtask.merge_field_name
+        if not merge_field_name:
+            data = list(*data_lists)
+        else:
+            data, exec_data = cls._merge_data(merge_field_name, data_lists)
+            cls._update_exec_data(results, exec_data)
+
+        cls._update_exec_data(results, exec_data)
+        data, exec_data = TransformStepService.transform_data(data, subtask.transform_step)
+        cls._update_exec_data(results, exec_data)
+        exec_data = TransferStepService.upload_data(data, subtask.upload_step)
+        cls._update_exec_data(results, exec_data)
+        return results
     
     @classmethod
-    def _merge_data(cls, merge_field_name: str, data_lists: list[list[dict]]):
-        if not merge_field_name:
-            return list(*data_lists)
+    def _merge_data(cls, merge_field_name: str, data_lists: list[list[dict]]) -> tuple[list[dict], dict]:
+        merged_data = []
+        exec_data = {
+            'merge_step': f'Merging {len(data_lists)} lists using "{merge_field_name}" field name',
+            'status': '',
+            'duration': 0,
+            'errors': 0, 'logs': []
+        }
+        init_time = time()
+        try:
+            data_lists = cls._sort_data_lists_for_quick_merge(merge_field_name, data_lists)
+            merged_data = data_lists.pop()
 
-        data_lists = cls._sort_data_lists_for_quick_merge(merge_field_name, data_lists)
-        merged_data = data_lists.pop()
-        
-        for data in data_lists:
-            merged_data = cls._quick_merge(merged_data, data)
-        
-        return merged_data
+            for data in data_lists:
+                merged_data = cls._quick_merge(merged_data, data, merge_field_name)
+
+        except Exception as ex:
+            exec_data['errors'] = 1
+            exec_time = round((time() - init_time) * 1000, 2)
+            exec_data['logs'] = [f'{exec_time}ms > {str(ex)}']
+            exec_data['status'] = states.FAILURE
+        else:
+            exec_data['status'] = states.SUCCESS
+
+        exec_time = round((time() - init_time) * 1000, 2)
+        exec_data['duration'] = exec_time
+        return merged_data, exec_data
 
     @classmethod
     def _sort_data_lists_for_quick_merge(cls, merge_field_name: str, data_lists: list[list[dict]]):

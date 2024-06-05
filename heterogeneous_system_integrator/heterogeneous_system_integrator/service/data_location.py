@@ -30,14 +30,14 @@ class ApiDataLocationService(BaseService):
         return url, headers
 
     @classmethod
-    def download_data(cls, data_location: ApiDataLocation) -> list[dict]:
+    def download_data(cls, data_location: ApiDataLocation) -> tuple[list[dict] | dict, dict]:
         url, headers = cls._prepare_data_transfer(data_location)
-        data = ApiConnectionService.download_data(url, headers)
+        data, exec_data = ApiConnectionService.download_data(url, headers)
         data = cls._get_clean_data(data, data_location)
-        return data
+        return data, exec_data
     
     @classmethod
-    def upload_data(cls, data_location: ApiDataLocation, data: list[dict]) -> list[str]:
+    def upload_data(cls, data_location: ApiDataLocation, data: list[dict]) -> dict:
         url, headers = cls._prepare_data_transfer(data_location)
         return ApiConnectionService.upload_data(url, headers, data)
 
@@ -47,11 +47,11 @@ class DbDataLocationService(BaseService):
     REPOSITORY_CLASS = DbDataLocationRepository
 
     @classmethod
-    def download_data(cls, data_location: DbDataLocation) -> list[dict]:
+    def download_data(cls, data_location: DbDataLocation) -> tuple[list[dict] | dict, dict]:
         pass
     
     @classmethod
-    def upload_data(cls, data_location: DbDataLocation, data: list[dict]) -> None:
+    def upload_data(cls, data_location: DbDataLocation, data: list[dict]) -> dict:
         pass
 
 
@@ -60,16 +60,15 @@ class FtpDataLocationService(BaseService):
     REPOSITORY_CLASS = FtpDataLocationRepository
 
     @classmethod
-    def download_data(cls, data_location: FtpDataLocation) -> list[dict]:
+    def download_data(cls, data_location: FtpDataLocation) -> tuple[list[dict] | dict, dict]:
         pass
 
     @classmethod
-    def upload_data(cls, data_location: FtpDataLocation, data: list[dict]) -> list[str]:
+    def upload_data(cls, data_location: FtpDataLocation, data: list[dict]) -> dict:
         connection = data_location.connection
         path = data_location.directory_path.strip('/').split('/')
         filename = data_location.filename
         with CsvWriter(filename, delete_on_exit=True) as writer:
             file = writer.write_file(data)
-            responses = FtpConnectionService.upload_data(connection, path, file)
-        return responses
-
+            exec_data = FtpConnectionService.upload_data(connection, path, file)
+        return exec_data

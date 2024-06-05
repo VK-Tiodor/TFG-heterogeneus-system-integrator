@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,django,pycharm
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,django,pycharm
 
+heterogeneous_system_integrator/ftp_dev_file_system/*
+heterogeneous_system_integrator/utils/temp_files/*
+!heterogeneous_system_integrator/utils/temp_files/*.py
+
 ### Django ###
 *.log
 *.pot
