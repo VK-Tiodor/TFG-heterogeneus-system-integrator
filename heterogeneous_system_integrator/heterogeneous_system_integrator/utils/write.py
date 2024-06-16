@@ -28,7 +28,7 @@ class CsvWriter:
         return column_names
 
     def write_file(self, data: list[dict]):
-        with open(self.file_path, 'w') as file:
+        with open(self.file_path, 'w', newline='', encoding='utf-8') as file:
             writer = DictWriter(file, fieldnames=self._get_column_names_from_data(data))
             writer.writeheader()
             writer.writerows(data)

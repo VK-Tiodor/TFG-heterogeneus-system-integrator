@@ -21,6 +21,6 @@ from heterogeneous_system_integrator.user_interface.api.urls import router
 
 
 urlpatterns = [
-    path("", admin_site.urls),
-    path("api/", include(router.urls)),
+    path('api/', include(router.urls)),
+    path('', admin_site.urls),
 ]

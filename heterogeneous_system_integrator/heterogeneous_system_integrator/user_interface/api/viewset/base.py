@@ -1,5 +1,5 @@
-from django.contrib import messages
 from django.contrib.admin import ModelAdmin
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.db.models.query import QuerySet
 from django.forms import Form, BaseFormSet
@@ -19,21 +19,25 @@ class _Base:
 
 
 class BaseViewset(_Base, ModelViewSet):
-    lookup_field = 'slug'
-
-    # TODO -> Revisar acciones, que hay que corregir
 
     def get_object(self):
-        return self.SERVICE_CLASS.get(filters={self.lookup_field: self.kwargs[self.lookup_field]})
+        id_value = self.kwargs['pk']
+        try:
+            object_ = self.SERVICE_CLASS.get({'id': int(id_value)})
+        except (ValueError, ObjectDoesNotExist):
+            object_ = self.SERVICE_CLASS.get({'slug': id_value})
+        return object_
     
     def perform_create(self, serializer: ModelSerializer):
-        return self.SERVICE_CLASS.create_model(properties=serializer.data)
+        return self.SERVICE_CLASS.create_model(**serializer.data)
     
     def perform_update(self, serializer: ModelSerializer):
-        return self.SERVICE_CLASS.update(filters={self.lookup_field: serializer.data[self.lookup_field]}, new_values=serializer.data)
+        model = serializer.instance
+        model.__dict__.update(serializer.validated_data)
+        return self.SERVICE_CLASS.save_model(model)
     
     def perform_destroy(self, instance):
-        return self.SERVICE_CLASS.delete(model=instance)
+        return self.SERVICE_CLASS.delete_model(model=instance)
 
 
 class BaseAdminViewset(_Base, ModelAdmin):

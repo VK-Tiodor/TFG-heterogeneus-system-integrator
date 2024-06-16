@@ -1,4 +1,3 @@
-from django_celery_results.models import TaskResult
 from rest_framework.routers import DefaultRouter
 
 from heterogeneous_system_integrator.domain import *
