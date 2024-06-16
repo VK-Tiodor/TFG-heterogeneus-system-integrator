@@ -14,7 +14,7 @@ class _BaseTaskResultViewset:
     SERVICE_CLASS = TaskResultService
 
     def get_queryset(self, request: HttpRequest = None) -> QuerySet:
-        return self.SERVICE_CLASS.create_query(order_by=['date_done'])
+        return self.SERVICE_CLASS.create_query(order_by=['-date_done'])
 
 
 class TaskResultViewset(_BaseTaskResultViewset, BaseViewset):
@@ -35,6 +35,6 @@ class TaskResultAdminViewset(_BaseTaskResultViewset, BaseAdminViewset):
 
         try:
             search_term = int(search_term)
-            return self.SERVICE_CLASS.create_query(filters={'pk': search_term}, order_by=['name']), duplicates
+            return self.SERVICE_CLASS.create_query(filters={'pk': search_term}, order_by=['-date_done']), duplicates
         except Exception:
-            return self.SERVICE_CLASS.create_query(filters={'task_name__icontains': search_term}, order_by=['date_done']), duplicates
+            return self.SERVICE_CLASS.create_query(filters={'task_name__icontains': search_term}, order_by=['-date_done']), duplicates
