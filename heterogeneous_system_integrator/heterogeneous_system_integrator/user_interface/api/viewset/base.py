@@ -4,6 +4,8 @@ from django.db.models import ManyToManyField
 from django.db.models.query import QuerySet
 from django.forms import Form, BaseFormSet
 from django.http.request import HttpRequest
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.viewsets import ModelViewSet
 
@@ -27,17 +29,37 @@ class BaseViewset(_Base, ModelViewSet):
         except (ValueError, ObjectDoesNotExist):
             object_ = self.SERVICE_CLASS.get({'slug': id_value})
         return object_
-    
-    def perform_create(self, serializer: ModelSerializer):
-        return self.SERVICE_CLASS.create_model(**serializer.data)
-    
-    def perform_update(self, serializer: ModelSerializer):
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_model = self.SERVICE_CLASS.create_model(**serializer.validated_data)
+        serializer = self.serializer_class(new_model)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
         model = serializer.instance
         model.__dict__.update(serializer.validated_data)
-        return self.SERVICE_CLASS.save_model(model)
-    
-    def perform_destroy(self, instance):
-        return self.SERVICE_CLASS.delete_model(model=instance)
+        self.SERVICE_CLASS.save_model(model)
+        serializer = self.serializer_class(model)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.serializer_class(instance)
+        self.SERVICE_CLASS.delete_model(model=instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class BaseAdminViewset(_Base, ModelAdmin):
