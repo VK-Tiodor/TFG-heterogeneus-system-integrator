@@ -1,7 +1,12 @@
+from http import HTTPMethod
+
 from django.contrib import messages
 from django.contrib.admin import action
 from django.http.request import HttpRequest
 from django.utils.text import get_text_list
+from rest_framework import status
+from rest_framework.decorators import action as api_action
+from rest_framework.response import Response
 
 from heterogeneous_system_integrator.celery import run_async_task
 from heterogeneous_system_integrator.domain.base import Base
@@ -17,6 +22,17 @@ class _BaseAsyncTaskViewset:
 # TODO add execution endpoint
 class AsyncTaskViewset(_BaseAsyncTaskViewset, BaseViewset):
     serializer_class = AsyncTaskSerializer
+
+    @api_action(detail=True, methods=[HTTPMethod.GET])
+    def execute(self, *args, **kwargs):
+        try:
+            task = self.get_object()
+            run_async_task.delay(**AsyncTaskSerializer(task).data)
+            response = Response({'executing': {'id': task.id, 'name': task.name}}, status.HTTP_200_OK)
+        except Exception as ex:
+            response = Response({'executing': None, 'error': str(ex)}, status.HTTP_400_BAD_REQUEST)
+
+        return response
 
 
 @action(description='Execute tasks')

@@ -21,7 +21,7 @@ DB_TYPES = {
 FTP_TYPES = {
     (FTP_TYPE_BASIC := 'basic'): 'Basic',
     (FTP_TYPE_FTPS := 'ftps'): 'FTPS',
-    (FTP_TYPE_FTPES := 'ftpes'): 'FTPES',
+    (FTP_TYPE_FTPES := 'ftpes'): 'FTPS Explicit',
     (FTP_TYPE_SFTP := 'sftp'): 'SFTP',
 }
 
