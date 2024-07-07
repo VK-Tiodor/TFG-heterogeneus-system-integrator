@@ -19,7 +19,6 @@ class _BaseAsyncTaskViewset:
     SERVICE_CLASS = AsyncTaskService
 
 
-# TODO add execution endpoint
 class AsyncTaskViewset(_BaseAsyncTaskViewset, BaseViewset):
     serializer_class = AsyncTaskSerializer
 
@@ -27,7 +26,7 @@ class AsyncTaskViewset(_BaseAsyncTaskViewset, BaseViewset):
     def execute(self, *args, **kwargs):
         try:
             task = self.get_object()
-            run_async_task.delay(**AsyncTaskSerializer(task).data)
+            run_async_task.delay(self.serializer_class(task).data)
             response = Response({'executing': {'id': task.id, 'name': task.name}}, status.HTTP_200_OK)
         except Exception as ex:
             response = Response({'executing': None, 'error': str(ex)}, status.HTTP_400_BAD_REQUEST)

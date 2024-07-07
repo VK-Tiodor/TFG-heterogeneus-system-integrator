@@ -2,7 +2,7 @@
 
 {% block extrastyle %}
 <style>
-  .title h1 {
+  div .title {
     text-align:center;
   
     text-transform:uppercase;
@@ -12,13 +12,6 @@
     grid-template-columns: 1fr auto 1fr;
     grid-template-rows: 16px 0;
     grid-gap: 22px;
-  }
-
-  .title h1:after,.eight h1:before {
-    content: " ";
-    display: block;
-    border-bottom: 2px solid #ccc;
-    background-color:#f8f8f8;
   }
 </style>
 {% endblock %}

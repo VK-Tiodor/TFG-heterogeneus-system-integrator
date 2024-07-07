@@ -17,6 +17,14 @@ x-base-app-conf: &base-app-conf
   networks:
     - default
 
+x-base-db-conf: &base-db-conf
+  image: postgres:14.11-bullseye
+  restart: unless-stopped
+  networks:
+    - default
+  ports:
+    - 5432:5432
+
 services:
   app:
     <<: *base-app-conf
@@ -56,8 +64,7 @@ services:
       - "8080:8080"
 
   db:
-    image: postgres:14.11-bullseye
-    restart: unless-stopped
+    <<: *base-db-conf
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-default_name}
       - POSTGRES_USER=${POSTGRES_USER:-default_user}
@@ -65,10 +72,16 @@ services:
       - POSGTRES_HOST=${POSGTRES_HOST:-db}
     volumes:
       - volume_db:/var/lib/postgresql/data
-    networks:
-      - default
-    ports:
-      - 5432:5432
+
+  dev-db:
+    <<: *base-db-conf
+    environment:
+      - POSTGRES_DB=dev_name
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=dev_pass
+      - POSGTRES_HOST=dev-db
+    volumes:
+      - volume_dev_db:/var/lib/postgresql/data
 
   dev-ftp:
     image: delfer/alpine-ftp-server
@@ -88,4 +101,5 @@ networks:
 
 volumes:
   volume_db:
+  volume_dev_db:
   volume_broker:
