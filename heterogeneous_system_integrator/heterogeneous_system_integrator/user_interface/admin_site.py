@@ -1,6 +1,5 @@
-from django.contrib import messages, admin
+from django.contrib import admin
 from django.utils.translation import gettext as _
-from django_celery_results.models import TaskResult
 
 from heterogeneous_system_integrator.domain import *
 from heterogeneous_system_integrator.service.user import UserService
