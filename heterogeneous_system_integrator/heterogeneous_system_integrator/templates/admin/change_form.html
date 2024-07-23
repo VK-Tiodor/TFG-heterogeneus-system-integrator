@@ -1,120 +1,164 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
-
-{% block extrahead %}{{ block.super }}
-<script src="{% url 'admin:jsi18n' %}"></script>
-{{ media }}
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% url 'admin:jsi18n' %}"></script>
+  {{ media }}
 {% endblock %}
-
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">{% endblock %}
-
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+{% endblock %}
 {% block coltype %}colM{% endblock %}
-
-{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
-
+{% block bodyclass %}
+  {{ block.super }}
+  app-{{ opts.app_label }}
+  model-{{ opts.model_name }}
+  change-form
+{% endblock %}
 {% if not is_popup %}
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
-&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
-&rsaquo; {% if add %}{% blocktranslate with name=opts.verbose_name %}Add {{ name }}{% endblocktranslate %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
-</div>
-{% endblock %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo;
+    <a href="{% url 'admin:app_list' app_label=opts.app_label %}">
+      {{ opts.app_config.verbose_name }}
+    </a>
+    &rsaquo;
+    {% if has_view_permission %}
+      <a href="{% url opts|admin_urlname:'changelist' %}">
+        {{ opts.verbose_name_plural|capfirst }}
+      </a>
+    {% else %}
+      {{ opts.verbose_name_plural|capfirst }}
+    {% endif %}
+    &rsaquo;
+    {% if add %}
+      {% blocktranslate with name=opts.verbose_name %}
+        Add {{ name }}{% endblocktranslate %}
+    {% else %}
+      {{ original|truncatewords:"18" }}
+    {% endif %}
+    </div>
+  {% endblock %}
 {% endif %}
-
-{% block content %}<div id="content-main">
-{% block object-tools %}
-{% if change and not is_popup %}
-  <ul class="object-tools">
-    {% block object-tools-items %}
-      {% change_form_object_tools %}
+{% block content %}
+  <div id="content-main">
+    {% block object-tools %}
+      {% if change and not is_popup %}
+        <ul class="object-tools">
+          {% block object-tools-items %}
+            {% change_form_object_tools %}
+          {% endblock %}
+        </ul>
+      {% endif %}
     {% endblock %}
-  </ul>
-{% endif %}
-{% endblock %}
-<form enctype="multipart/form-data" id="{{ opts.model_name }}_form" method="post">{% csrf_token %}{% block form_top %}{% endblock %}
-<div>
-{% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
-{% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
-{% if save_on_top %}{% block submit_buttons_top %}{% submit_row %}{% endblock %}{% endif %}
-{% if errors %}
-    <p class="errornote">
-    {% blocktranslate count counter=errors|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
-    </p>
-    {{ adminform.form.non_field_errors }}
-{% endif %}
-
-{% block field_sets %}
-{% for fieldset in adminform %}
-  {% include "admin/includes/fieldset.html" with heading_level=2 id_suffix=forloop.counter0 %}
-{% endfor %}
-{% endblock %}
-
-{% block after_field_sets %}{% endblock %}
-
-{% block inline_field_sets %}
-{% for inline_admin_formset in inline_admin_formsets %}
-    {% include inline_admin_formset.opts.template %}
-{% endfor %}
-{% endblock %}
-
-{% block after_related_objects %}{% endblock %}
-
-{% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
-
-{% block admin_change_form_document_ready %}
-    <script id="django-admin-form-add-constants"
-            src="{% static 'admin/js/change_form.js' %}"
-            {% if adminform and add %}
+    <form enctype="multipart/form-data"
+        id="{{ opts.model_name }}_form"
+        method="post">
+      {% csrf_token %}
+      {% block form_top %}{% endblock %}
+      <div>
+        {% if is_popup %}
+          <input type="hidden" name="{{ is_popup_var }}" value="1">
+        {% endif %}
+        {% if to_field %}
+          <input type="hidden"
+               name="{{ to_field_var }}"
+               value="{{ to_field }}">
+        {% endif %}
+        {% if save_on_top %}
+          {% block submit_buttons_top %}{% submit_row %}{% endblock %}
+        {% endif %}
+        {% if errors %}
+          <p class="errornote">
+          {% blocktranslate count counter=errors|length %}
+            Please correct the error below.
+            {% plural %}Please correct the errors below.
+          {% endblocktranslate %}
+          </p>
+          {{ adminform.form.non_field_errors }}
+        {% endif %}
+        {% block field_sets %}
+          {% for fieldset in adminform %}
+            {% include "admin/includes/fieldset.html" with heading_level=2 id_suffix=forloop.counter0 %}
+          {% endfor %}
+        {% endblock %}
+        {% block after_field_sets %}{% endblock %}
+        {% block inline_field_sets %}
+          {% for inline_admin_formset in inline_admin_formsets %}
+            {% include inline_admin_formset.opts.template %}
+          {% endfor %}
+        {% endblock %}
+        {% block after_related_objects %}{% endblock %}
+        {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+        {% block admin_change_form_document_ready %}
+          <script id="django-admin-form-add-constants"
+              src="{% static 'admin/js/change_form.js' %}"
+              {% if adminform and add %}
                 data-model-name="{{ opts.model_name }}"
-            {% endif %}
-            async>
-    </script>
-{% endblock %}
-
-{# JavaScript for prepopulated fields #}
-{% prepopulated_fields_js %}
-
-</div>
-</form>
-<script>
-var form = document.getElementById("{{ opts.model_name }}_form");
-var csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-async function save_object(event) {
-    event.preventDefault();
-    try {
-        let url = "{% if not object_id %}{% url opts.model_name|add:'-list' %}{% else %}{% url opts.model_name|add:'-detail' object_id %}{% endif %}";
-        let method = "{% if not object_id %}POST{% else %}PATCH{% endif %}";
-        let form_data = new FormData(event.target);
-        let body = {};
-        for (let entry of form_data.entries()){
-            if (Boolean(entry[1])){
-                body[entry[0]] = entry[1];
+              {% endif %}
+              async>
+          </script>
+        {% endblock %}
+        {# JavaScript for prepopulated fields #}
+        {% prepopulated_fields_js %}
+      </div>
+    </form>
+    <script>
+      var form = document.getElementById("{{ opts.model_name }}_form");
+      var csrf_token = document
+        .querySelector('[name=csrfmiddlewaretoken]')
+        .value;
+      async function save_object(event) {
+        event.preventDefault();
+        try {
+          {% if not object_id %}
+            {% with opts.model_name|add:'-list' as target_url %}
+              let url = "{% url target_url %}";
+            {% endwith %}
+          {% else %}
+            {% with opts.model_name|add:'-detail' as target_url %}
+              let url = "{% url target_url object_id %}";
+            {% endwith %}
+          {% endif %}
+          {% if not object_id %}
+            let method = "POST";
+          {% else %}
+            let method = "PATCH";
+          {% endif %}
+          let form_data = new FormData(event.target);
+          let body = {};
+          for (let entry of form_data.entries()){
+            if (entry[1] === ""){
+              body[entry[0]] = null;
+            } else {
+              body[entry[0]] = entry[1];
             }
-        }
-        let request = new Request(url, {
+          }
+          let request = new Request(url, {
             method: method,
             body: JSON.stringify(body),
             headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrf_token,
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrf_token,
             },
             mode: 'same-origin',
-        });
-        let response = await fetch(request);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}:${response.statusText}`);
-        } else {
-            window.location.href = "{% url opts|admin_urlname:'changelist' %}";
+          });
+          let resp = await fetch(request);
+          if (!resp.ok) {
+            let msg = "ERROR: ${resp.status}:${resp.statusText}"
+            throw new Error(msg);
+          } else {
+            {% with opts|admin_urlname:'changelist' as target_url %}
+              window.location.href = "{% url target_url %}";
+            {% endwith %}
+          }
+        } catch (error) {
+          console.error(error.message);
         }
-    } catch (error) {
-        console.error(error.message);
-    }
-}
-
-form.addEventListener("submit", save_object);
-</script>
-</div>
+      }
+      form.addEventListener("submit", save_object);
+    </script>
+  </div>
 {% endblock %}
