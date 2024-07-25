@@ -20,13 +20,18 @@ class FilterService(BaseService):
             return data, exec_data
 
         init_time = time()
-        filtered_data = []
-        for row in data:
+        filters = list(filters)
+        filtered_indexes = {filter_.pk: set() for filter_ in filters}
+        for i, row in enumerate(data):
             for filter_ in filters:
                 field_name = filter_.field_name
                 operator = filter_.comparison_operator
-                comparison_value = loads(filter_.comparison_value)
                 keep = (filter_.type == FILTER_TYPE_KEEP)
+                try:
+                    comparison_value = loads(filter_.comparison_value)
+                except:
+                    comparison_value = filter_.comparison_value
+
                 if not row.get(field_name.split('.')[0]):
                     exec_data['errors'] += 1
                     exec_time = round((time() - init_time) * 1000, 2)
@@ -38,9 +43,14 @@ class FilterService(BaseService):
                 field_value = ObjectReader.get_field(row, field_name)
                 if (((OPERATIONS[operator](field_value, comparison_value) and keep)
                         or (not OPERATIONS[operator](field_value, comparison_value) and not keep))
-                        and row not in filtered_data):
-                    filtered_data += [row]
+                        and i not in filtered_indexes[filter_.pk]):
+                    filtered_indexes[filter_.pk] = filtered_indexes[filter_.pk].union({i})
 
+        final_indexes_set = filtered_indexes[filters.pop(0).pk]
+        for filter_ in filters:
+            final_indexes_set = final_indexes_set.intersection(filtered_indexes[filter_.pk])
+
+        filtered_data = [data[i] for i in final_indexes_set]
         exec_data['status'] = states.SUCCESS if not exec_data['errors'] else states.FAILURE
         exec_time = round((time() - init_time) * 1000, 2)
         exec_data['duration'] = exec_time
